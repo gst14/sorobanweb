@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Delegate, VisionError, VisionPhase, VisionSession } from '@/application/ports';
 import { Soroban } from '@/domain';
+import { HandOverlay, type HandOverlayHandle } from '../components/vision/HandOverlay';
 import { useServices } from '../services';
 import './CameraScreen.css';
 
@@ -72,6 +73,7 @@ const PREVIEW_SOROBAN = Soroban.create(7);
 export function CameraScreen({ onExit }: { onExit: () => void }) {
   const { vision } = useServices();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const overlayRef = useRef<HandOverlayHandle>(null);
   const sessionRef = useRef<VisionSession | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const handSeenRef = useRef(false);
@@ -84,6 +86,7 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
     abortRef.current = null;
     sessionRef.current?.stop();
     sessionRef.current = null;
+    overlayRef.current?.clear();
   };
 
   // Al salir de la pantalla, la cámara se apaga aunque todavía esté arrancando.
@@ -106,8 +109,18 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
       onPhase: (phase) => {
         setState({ status: 'starting', phase });
       },
-      // Solo se re-renderiza cuando la mano aparece o desaparece, no en cada frame.
+      // El overlay se dibuja en cada frame sin pasar por React; la pantalla solo se
+      // re-renderiza cuando la mano aparece o desaparece.
       onFrame: (hand) => {
+        const session = sessionRef.current;
+        if (session) {
+          overlayRef.current?.draw({
+            hand,
+            calibration: session.calibration,
+            mode: session.mode,
+            media: { width: video.videoWidth, height: video.videoHeight },
+          });
+        }
         const seen = hand !== null;
         if (seen === handSeenRef.current) return;
         handSeenRef.current = seen;
@@ -115,6 +128,7 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
       },
       onError: () => {
         sessionRef.current = null;
+        overlayRef.current?.clear();
         setState({ status: 'error', error: 'tracker' });
       },
     });
@@ -149,7 +163,10 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
         <h1>Modo cámara</h1>
       </header>
 
-      <video ref={videoRef} className="camera__video" hidden={!showVideo} playsInline muted />
+      <div className="camera__view" hidden={!showVideo}>
+        <video ref={videoRef} className="camera__video" playsInline muted />
+        <HandOverlay ref={overlayRef} />
+      </div>
 
       {state.status === 'idle' && (
         <section aria-label="Cómo funciona">

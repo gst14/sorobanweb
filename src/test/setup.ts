@@ -16,3 +16,7 @@ if (!('setPointerCapture' in Element.prototype)) {
     hasPointerCapture: (): boolean => false,
   });
 }
+
+// jsdom no trae canvas: `getContext` devuelve null como siempre, pero sin el aviso en cada test.
+// Los tests que dibujan lo reemplazan con un contexto falso.
+HTMLCanvasElement.prototype.getContext = () => null;

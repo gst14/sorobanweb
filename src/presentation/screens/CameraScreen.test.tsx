@@ -64,6 +64,50 @@ describe('CameraScreen', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Acercá una mano a la cámara');
   });
 
+  it('dibuja la mano sobre el video en cada frame y limpia al apagar', async () => {
+    const ctx = {
+      setTransform: vi.fn(),
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      closePath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+    };
+    const getContext = vi
+      .spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue(ctx as unknown as CanvasRenderingContext2D);
+    try {
+      const { services, user } = renderCamera();
+      await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+      const session = lastSession(services);
+      expect(session.calibration.rodCount).toBe(7);
+
+      const landmarks = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5 }));
+      act(() => {
+        session.frame({ t: 0, landmarks, score: 0.9 });
+      });
+      expect(ctx.strokeRect).toHaveBeenCalledOnce();
+      expect(ctx.arc).toHaveBeenCalledTimes(22);
+      act(() => {
+        session.frame(null);
+      });
+      expect(ctx.strokeRect).toHaveBeenCalledTimes(2);
+      expect(ctx.arc).toHaveBeenCalledTimes(22);
+
+      ctx.clearRect.mockClear();
+      await user.click(screen.getByRole('button', { name: 'Apagar cámara' }));
+      expect(session.stopped).toBe(true);
+      expect(ctx.clearRect).toHaveBeenCalledOnce();
+    } finally {
+      getContext.mockRestore();
+    }
+  });
+
   it.each<[VisionError, RegExp, boolean]>([
     ['not-allowed', /No hay permiso/, true],
     ['not-found', /No se encontró ninguna cámara/, true],
