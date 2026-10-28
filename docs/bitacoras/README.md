@@ -13,10 +13,11 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 | [01](2026-10-27-sesion-01.md) | 2026-10-27 | Plan aprobado; fase 0 completa; fase 1 completa en código (falta el QA en dispositivos) |
 | [02](2026-10-27-sesion-02.md) | 2026-10-27 | CI y deploy confirmados; desglose de la fase 2; bloque A de gestos, script del modelo y puerto de cámara (2.1–2.10) |
 | [03](2026-10-27-sesion-03.md) | 2026-10-27 | Bloque B de gestos: tracker de MediaPipe en chunk aparte, `VisionInput` y benchmark de delegado (2.11–2.13) |
+| [04](2026-10-28-sesion-04.md) | 2026-10-28 | Puerto de visión, `VisionService` y pantalla "Activar modo cámara" (2.14); el modo táctil no pide nada de MediaPipe |
 
 ## Estado actual
 
-Última actualización: 2026-10-27, sesión 03.
+Última actualización: 2026-10-28, sesión 04.
 
 ### Hecho
 
@@ -42,7 +43,8 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [x] 2.10: `CameraPort` (en `application/ports`, sin DOM) y `BrowserCamera` con errores tipados.
 - [x] 2.11: `MediaPipeHandTracker` con `import()` dinámico (chunk `vision_bundle` aparte, fuera del precache) y espejado.
 - [x] 2.12: `VisionInput`, con bucle rAF fuera de React; `stop()` libera la cámara y el tracker.
-- [x] 2.13 (lógica): benchmark GPU/CPU y `DelegatePreference` por dispositivo, con "modo compatibilidad" forzado.
+- [x] 2.13: benchmark GPU/CPU y `DelegatePreference` por dispositivo, con "modo compatibilidad" forzado (el botón está en la pantalla de cámara).
+- [x] 2.14: `VisionPort` en `application/ports`, `VisionService` y pantalla "Activar modo cámara" con todos los errores y la salida a táctil. Verificado en Chromium: el modo táctil no pide nada de `mediapipe/`, `models/` ni `vision_bundle`.
 
 ### Pendiente
 
@@ -54,8 +56,9 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
 **Fase 2 · Gestos**
-- [ ] Push de los 4 commits de la sesión 03.
-- [ ] Bloque C (2.14–2.17): puerto de visión para la UI, pantalla de cámara, overlay, calibración y selector de modo (con el botón "modo compatibilidad" de la 2.13).
+- [ ] Push de los 3 commits de la sesión 04.
+- [ ] Probar la pantalla de cámara con una cámara y una mano reales (desktop y teléfono).
+- [ ] Bloque C (2.15–2.17): overlay, calibración y selector de modo. Con la calibración, la cámara empieza a mover las cuentas de una lección.
 - [ ] Bloque D (2.18–2.19): grabador de sesiones y medición en dispositivos.
 
 **Fase 3 · Gamificación**: no iniciada.
