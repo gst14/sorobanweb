@@ -8,6 +8,20 @@ Entorno verificado: Node 24.19.0, npm 11.17.0, Windows 11 (sin pnpm). Las versio
 
 ---
 
+## Estado (2026-10-27)
+
+- **Fase 0:** completa.
+- **Fase 1:** tareas 1.1 a 1.24 completas. Queda la **1.25**: el deploy en Vercel y la checklist manual en un iPhone y un Android reales.
+- **Desvíos respecto del plan:**
+  - El template de create-vite 9 trae oxlint; se reemplazó por ESLint.
+  - `vite-plugin-static-copy` 4 necesita `rename: { stripBase: true }`.
+  - No hay rewrite SPA en `vercel.json`, porque la app no tiene rutas por URL.
+  - En mobile horizontal, el soroban ocupa toda la altura con una columna lateral angosta: es la única forma de que 13 varillas tengan celdas de 44 px.
+- **Verificado en Chromium:**
+  - Capturas en 390×844, 844×390 y 1280×800, sin scroll horizontal.
+  - Celdas de toque de 48×44 px en mobile y de 61×56 px en desktop.
+  - La lección se juega sin red, sin requests a terceros ni a MediaPipe.
+
 ## Hallazgos previos (verificados, no son suposiciones)
 
 1. **`classifyAdd` y `classifySub` del documento son correctos.** Los comparé contra un simulador de cuentas independiente (que intenta directo → amigo del 5 → amigo del 10 → combinado con restricciones físicas de cuentas) en las 180 combinaciones: 0 diferencias. Distribución por operación: 35 directo, 10 five, 35 ten, 10 combined.
