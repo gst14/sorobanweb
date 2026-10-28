@@ -1,4 +1,4 @@
-import { type HandFrame, INDEX_TIP, THUMB_TIP, distance, handScale } from './landmarks';
+import { type HandFrame, INDEX_TIP, THUMB_TIP, distance, handScale } from '@/application/vision';
 
 export type PinchEvent = 'start' | 'end';
 

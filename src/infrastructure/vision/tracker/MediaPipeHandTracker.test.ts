@@ -1,6 +1,6 @@
 import type { HandLandmarkerOptions } from '@mediapipe/tasks-vision';
 import { describe, expect, it } from 'vitest';
-import type { Landmark } from '../gesture/landmarks';
+import type { Landmark } from '@/application/vision';
 import {
   type HandLandmarkerLike,
   type HandResultLike,

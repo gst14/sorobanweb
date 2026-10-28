@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PinchDetector } from './PinchDetector';
-import { pinchAt } from './testing/hands';
+import { pinchAt } from '@/application/vision/testing/hands';
 
 const feed = (detector: PinchDetector, ratios: readonly number[]) =>
   ratios.map((r, i) => detector.update(pinchAt(r, i * 33)));

@@ -1,7 +1,7 @@
 import type { GestureMode } from '@/application/ports';
 import type { Move, Soroban } from '@/domain';
 import type { Calibration } from './calibration';
-import { type HandFrame, type PusherFinger, fingertip } from './landmarks';
+import { type HandFrame, type PusherFinger, fingertip } from '@/application/vision';
 import { type PinchPointerOptions, PinchPointer } from './PinchPointer';
 import { type PusherOptions, Pusher } from './Pusher';
 

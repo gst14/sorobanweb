@@ -105,6 +105,12 @@ export default defineConfig(({ mode }) => ({
       ],
       thresholds: {
         'src/domain/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
+        'src/application/vision/**': {
+          lines: 100,
+          branches: 100,
+          functions: 100,
+          statements: 100,
+        },
         'src/infrastructure/vision/gesture/**': {
           lines: 100,
           branches: 100,

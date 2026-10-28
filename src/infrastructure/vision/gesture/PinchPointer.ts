@@ -1,6 +1,6 @@
 import { type Move, type Soroban, dragMove, toMove } from '@/domain';
 import { type BeadHit, type Calibration, beadUnits, hitBead } from './calibration';
-import { type HandFrame, fingertip } from './landmarks';
+import { type HandFrame, fingertip } from '@/application/vision';
 import { type OneEuroOptions, OneEuro2D } from './OneEuro';
 import { type PinchOptions, PinchDetector } from './PinchDetector';
 import { RodMapper } from './RodMapper';

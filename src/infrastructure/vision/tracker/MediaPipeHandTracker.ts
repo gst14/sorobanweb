@@ -1,6 +1,6 @@
 import type { HandLandmarker, HandLandmarkerOptions } from '@mediapipe/tasks-vision';
 import type { Delegate, TrackedHand } from '@/application/ports';
-import type { Landmark } from '../gesture/landmarks';
+import type { Landmark } from '@/application/vision';
 
 /** Rutas del loader y del binario WASM; el paquete no exporta el tipo. */
 export type WasmFileset = Parameters<typeof HandLandmarker.createFromOptions>[0];

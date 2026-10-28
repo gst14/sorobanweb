@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { type Move, Soroban } from '@/domain';
 import { GestureEngine } from './GestureEngine';
-import type { HandFrame } from './landmarks';
-import { hand, pointerHand } from './testing/hands';
+import type { HandFrame } from '@/application/vision';
+import { hand, pointerHand } from '@/application/vision/testing/hands';
 import { CAL, FRAME_MS, rodX, stroke, unitsY } from './testing/strokes';
 
 const RAW = { minCutoff: 1e4 };

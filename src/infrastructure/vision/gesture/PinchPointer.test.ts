@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { type Move, Soroban } from '@/domain';
-import type { HandFrame } from './landmarks';
+import type { HandFrame } from '@/application/vision';
 import { PinchPointer } from './PinchPointer';
-import { pointerHand } from './testing/hands';
+import { pointerHand } from '@/application/vision/testing/hands';
 import { CAL, FRAME_MS, rodX, unitsY } from './testing/strokes';
 
 const RAW = { filter: { minCutoff: 1e4 } };

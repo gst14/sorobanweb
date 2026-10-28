@@ -1,6 +1,6 @@
 import { type Move, type Soroban, dragMove, toMove } from '@/domain';
 import { type Calibration, beadUnits, hitBead } from './calibration';
-import type { Landmark, PusherFinger } from './landmarks';
+import type { Landmark, PusherFinger } from '@/application/vision';
 import { type OneEuroOptions, OneEuro2D } from './OneEuro';
 import { RodMapper } from './RodMapper';
 import { StrokeWindow } from './StrokeWindow';

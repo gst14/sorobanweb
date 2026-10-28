@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { type Move, Soroban } from '@/domain';
-import type { HandFrame } from './gesture/landmarks';
-import { hand } from './gesture/testing/hands';
+import type { HandFrame } from '@/application/vision';
+import { hand } from '@/application/vision/testing/hands';
 import { CAL, stroke } from './gesture/testing/strokes';
 import type { HandTracker, TrackedHand } from './tracker/MediaPipeHandTracker';
 import { type FrameScheduler, VisionInput, type VisionInputOptions } from './VisionInput';
