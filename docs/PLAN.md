@@ -8,11 +8,11 @@ Entorno verificado: Node 24.19.0, npm 11.17.0, Windows 11 (sin pnpm). Las versio
 
 ---
 
-## Estado (2026-10-28, sesión 05)
+## Estado (2026-10-28, sesión 06)
 
 - **Fase 0:** completa.
 - **Fase 1:** tareas 1.1 a 1.24 completas. CI en verde y deploy vivo en `https://sorobanweb.vercel.app`. De la **1.25** queda la checklist manual en un iPhone y un Android reales.
-- **Fase 2:** desglose fino escrito (más abajo). Bloques A (2.1–2.8) y B (2.9–2.13) completos, y la 2.14 también: `VisionPort` en `application/ports`, `VisionService` y la pantalla de cámara con el botón de "modo compatibilidad". El chunk JS de MediaPipe no se precachea, y en Chromium el modo táctil no pide nada de MediaPipe. La 2.15 (`<HandOverlay/>`) también está completa: la geometría de la calibración vive en `application/vision`, y falta verla con una mano real. Sigue la 2.16.
+- **Fase 2:** desglose fino escrito (más abajo). Bloques A (2.1–2.8) y B (2.9–2.13) completos, y la 2.14 también: `VisionPort` en `application/ports`, `VisionService` y la pantalla de cámara con el botón de "modo compatibilidad". El chunk JS de MediaPipe no se precachea, y en Chromium el modo táctil no pide nada de MediaPipe. La 2.15 (`<HandOverlay/>`) también está completa: la geometría de la calibración vive en `application/vision`, y falta verla con una mano real. La 2.16 (calibración de 10 s) también: dos puntos en los extremos de la viga, alto de cuenta según el tamaño de la mano, guardada por orientación de la imagen, y un soroban de práctica que se mueve con los gestos. Sigue la 2.17.
 - **Desvíos respecto del plan:**
   - El template de create-vite 9 trae oxlint; se reemplazó por ESLint.
   - `vite-plugin-static-copy` 4 necesita `rename: { stripBase: true }`.

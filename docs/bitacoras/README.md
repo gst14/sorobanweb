@@ -15,10 +15,11 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 | [03](2026-10-27-sesion-03.md) | 2026-10-27 | Bloque B de gestos: tracker de MediaPipe en chunk aparte, `VisionInput` y benchmark de delegado (2.11–2.13) |
 | [04](2026-10-28-sesion-04.md) | 2026-10-28 | Puerto de visión, `VisionService` y pantalla "Activar modo cámara" (2.14); el modo táctil no pide nada de MediaPipe |
 | [05](2026-10-28-sesion-05.md) | 2026-10-28 | `<HandOverlay/>` sobre el video (2.15) y geometría de la calibración en `application/vision` |
+| [06](2026-10-28-sesion-06.md) | 2026-10-28 | Calibración de 10 s guardada por orientación (2.16) y soroban de práctica movido con gestos |
 
 ## Estado actual
 
-Última actualización: 2026-10-28, sesión 05.
+Última actualización: 2026-10-28, sesión 06.
 
 ### Hecho
 
@@ -47,6 +48,7 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [x] 2.13: benchmark GPU/CPU y `DelegatePreference` por dispositivo, con "modo compatibilidad" forzado (el botón está en la pantalla de cámara).
 - [x] 2.14: `VisionPort` en `application/ports`, `VisionService` y pantalla "Activar modo cámara" con todos los errores y la salida a táctil. Verificado en Chromium: el modo táctil no pide nada de `mediapipe/`, `models/` ni `vision_bundle`.
 - [x] 2.15: `<HandOverlay/>`, un Canvas 2D sobre el video con el recuadro, la varilla y la sección bajo cada dedo, y la mano. La geometría de la calibración pasó a `application/vision`. En Chromium, el canvas coincide con la caja del video en 390×844 y 1280×800. Falta verlo con una mano real.
+- [x] 2.16: calibración con el índice en los dos extremos de la viga; el alto de cuenta sale del tamaño de la mano. Se guarda por orientación de la imagen y, al rotar, se pide solo si falta. Ya calibrado, un soroban de práctica se mueve con los gestos. Falta probarla con una mano real.
 
 ### Pendiente
 
@@ -58,9 +60,9 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
 **Fase 2 · Gestos**
-- [ ] Push de los 5 commits de las sesiones 04 y 05.
-- [ ] Probar la pantalla de cámara con una cámara y una mano reales (desktop y teléfono), incluido el overlay.
-- [ ] Resto del bloque C (2.16–2.17): calibración y selector de modo. Con la calibración, la cámara empieza a mover las cuentas de una lección.
+- [ ] Push de los 8 commits de las sesiones 04, 05 y 06.
+- [ ] Probar la pantalla de cámara con una cámara y una mano reales (desktop y teléfono): overlay, calibración y soroban de práctica.
+- [ ] 2.17: selector de modo e indicador de calidad. Con ella, la cámara entra a la lección.
 - [ ] Bloque D (2.18–2.19): grabador de sesiones y medición en dispositivos.
 
 **Fase 3 · Gamificación**: no iniciada.
