@@ -1,0 +1,69 @@
+.camera__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.camera__header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+/* La cámara frontal se muestra espejada, igual que las coordenadas del tracker. */
+.camera__video {
+  display: block;
+  width: 100%;
+  max-height: 60svh;
+  margin-block: 16px;
+  border-radius: 12px;
+  background: var(--frame-bg);
+  object-fit: contain;
+  transform: scaleX(-1);
+}
+
+.camera__video[hidden] {
+  display: none;
+}
+
+.camera__facts {
+  padding-left: 1.2em;
+}
+
+.camera__facts li + li {
+  margin-top: 6px;
+}
+
+.camera__status {
+  font-weight: 600;
+}
+
+.camera__status--ok {
+  color: var(--ok);
+}
+
+.camera__error h2 {
+  color: var(--error);
+  font-size: 1.1rem;
+}
+
+.camera__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.camera__compat {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 24px;
+}
+
+.camera__compat input {
+  margin-top: 4px;
+}
+
+.camera__compat small {
+  display: block;
+}

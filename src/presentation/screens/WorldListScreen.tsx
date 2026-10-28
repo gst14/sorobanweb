@@ -2,7 +2,12 @@ import { useEffect } from 'react';
 import { WORLDS, isUnlocked } from '@/domain';
 import { useProgress, useServices, useSettings } from '../services';
 
-export function WorldListScreen({ onOpenLesson }: { onOpenLesson: (lessonId: string) => void }) {
+export interface WorldListScreenProps {
+  readonly onOpenLesson: (lessonId: string) => void;
+  readonly onOpenCamera: () => void;
+}
+
+export function WorldListScreen({ onOpenLesson, onOpenCamera }: WorldListScreenProps) {
   const { progressStore } = useServices();
   const passed = useProgress((s) => s.passed);
   const unlockAll = useSettings((s) => s.unlockAll);
@@ -47,6 +52,9 @@ export function WorldListScreen({ onOpenLesson }: { onOpenLesson: (lessonId: str
           </ul>
         </section>
       ))}
+      <button type="button" className="ghost camera-entry" onClick={onOpenCamera}>
+        📷 Modo cámara (beta)
+      </button>
       <details className="options">
         <summary>Opciones</summary>
         <label>

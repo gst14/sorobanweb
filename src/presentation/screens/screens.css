@@ -86,3 +86,8 @@ button:disabled {
   gap: 8px;
   min-height: 44px;
 }
+
+.camera-entry {
+  margin-top: 24px;
+  min-height: 44px;
+}

@@ -61,6 +61,17 @@ describe('App', { timeout: 20_000 }, () => {
     expect(screen.getByRole('button', { name: /^Poner 0–9(?!9)/ })).toBeDisabled();
   });
 
+  it('el modo cámara se abre desde los mundos y la flecha vuelve', async () => {
+    const services = renderApp();
+    const user = userEvent.setup({ delay: null });
+    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    await user.click(screen.getByRole('button', { name: /Modo cámara/ }));
+    expect(screen.getByRole('heading', { name: 'Modo cámara' })).toBeInTheDocument();
+    expect(services.fakeVision.starts).toHaveLength(0);
+    await user.click(screen.getByRole('button', { name: 'Volver a los mundos' }));
+    expect(screen.getByRole('heading', { name: 'Mundos' })).toBeInTheDocument();
+  });
+
   it('una lección de lectura completa con el teclado numérico aprueba y desbloquea la siguiente', async () => {
     const services = renderApp();
     const user = userEvent.setup({ delay: null });
