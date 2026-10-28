@@ -1,5 +1,4 @@
 import type {
-  Calibration,
   CameraPort,
   CameraSession,
   Delegate,
@@ -8,6 +7,7 @@ import type {
   VisionResult,
   VisionStartOptions,
 } from '@/application/ports';
+import { defaultCalibration } from '@/application/vision';
 import {
   type BenchmarkResult,
   type MeasureOptions,
@@ -34,18 +34,6 @@ export interface VisionServiceDeps {
   readonly now?: () => number;
   readonly tuning?: GestureTuning;
 }
-
-/**
- * Recuadro centrado que se usa mientras no haya calibración: el 70 % del ancho, con la viga
- * un poco arriba del centro para que entren el cielo y la tierra.
- */
-export const defaultCalibration = (rodCount: number): Calibration => ({
-  left: 0.15,
-  right: 0.85,
-  beamY: 0.4,
-  beadHeight: 0.05,
-  rodCount,
-});
 
 /**
  * Arranque del modo cámara: abre la cámara, elige el delegado (el guardado o, si no hay, el

@@ -1,17 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { type Digit, EARTH_SLOTS, Rod } from '@/domain';
-import { beadUnits, earthCenter, heavenCenter, hitBead } from './calibration';
+import { earthCenter, heavenCenter, hitBead } from './calibration';
 
 const DIGITS: readonly Digit[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-describe('beadUnits', () => {
-  it('mide desde la viga en alturas de cuenta', () => {
-    const cal = { left: 0.1, right: 0.9, beamY: 0.4, beadHeight: 0.05, rodCount: 7 };
-    expect(beadUnits(cal, 0.4)).toBe(0);
-    expect(beadUnits(cal, 0.5)).toBeCloseTo(2);
-    expect(beadUnits(cal, 0.35)).toBeCloseTo(-1);
-  });
-});
 
 describe('hitBead', () => {
   it.each(DIGITS)('con la varilla en %i encuentra cada cuenta en su centro', (d) => {

@@ -192,8 +192,10 @@ describe('VisionInput', () => {
     const { input, camera } = setup();
     input.setMode('pinch');
     expect(input.mode).toBe('pinch');
+    expect(input.calibration).toBe(CAL);
     input.setCalibration({ ...CAL, rodCount: 13 });
     expect(input.mode).toBe('pinch');
+    expect(input.calibration.rodCount).toBe(13);
     expect(camera.stops).toBe(0);
   });
 

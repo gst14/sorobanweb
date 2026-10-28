@@ -1,4 +1,5 @@
 import { createRng } from '@/domain';
+import { defaultCalibration } from '../vision/calibration';
 import type { AudioCue, AudioPort } from '../ports/AudioPort';
 import type { CameraPort, CameraResult } from '../ports/CameraPort';
 import type { Clock } from '../ports/Clock';
@@ -90,7 +91,7 @@ export class FakeVisionSession implements VisionSession {
   readonly kind = 'vision';
   readonly delegate: Delegate;
   mode: GestureMode;
-  calibration: Calibration | null = null;
+  calibration: Calibration;
   onMove: MoveListener | null = null;
   stopped = false;
   private readonly options: VisionStartOptions;
@@ -98,6 +99,7 @@ export class FakeVisionSession implements VisionSession {
   constructor(delegate: Delegate, options: VisionStartOptions) {
     this.delegate = delegate;
     this.mode = options.mode;
+    this.calibration = options.calibration ?? defaultCalibration(options.getSoroban().rods.length);
     this.options = options;
   }
   start(onMove: MoveListener): void {

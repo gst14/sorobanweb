@@ -52,7 +52,7 @@ export class VisionInput implements VisionSession {
   private readonly options: VisionInputOptions;
   private readonly scheduler: FrameScheduler;
   private engine: GestureEngine;
-  private calibration: Calibration;
+  private currentCalibration: Calibration;
   private onMove: MoveListener | null = null;
   private frameId: number | null = null;
   private lastVideoTime = -1;
@@ -61,12 +61,16 @@ export class VisionInput implements VisionSession {
   constructor(options: VisionInputOptions) {
     this.options = options;
     this.scheduler = options.scheduler ?? animationFrames;
-    this.calibration = options.calibration;
+    this.currentCalibration = options.calibration;
     this.engine = this.createEngine(options.mode);
   }
 
   get mode(): GestureMode {
     return this.engine.mode;
+  }
+
+  get calibration(): Calibration {
+    return this.currentCalibration;
   }
 
   get delegate(): Delegate {
@@ -95,12 +99,16 @@ export class VisionInput implements VisionSession {
   }
 
   setCalibration(calibration: Calibration): void {
-    this.calibration = calibration;
+    this.currentCalibration = calibration;
     this.engine = this.createEngine(this.engine.mode);
   }
 
   private createEngine(mode: GestureMode): GestureEngine {
-    return new GestureEngine({ ...this.options.tuning, mode, calibration: this.calibration });
+    return new GestureEngine({
+      ...this.options.tuning,
+      mode,
+      calibration: this.currentCalibration,
+    });
   }
 
   private readonly tick = (t: number): void => {

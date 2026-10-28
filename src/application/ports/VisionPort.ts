@@ -72,6 +72,8 @@ export interface VisionSession extends InputSource {
   readonly kind: 'vision';
   readonly delegate: Delegate;
   readonly mode: GestureMode;
+  /** La calibración en uso (la recibida o el recuadro por defecto). */
+  readonly calibration: Calibration;
   setMode(mode: GestureMode): void;
   setCalibration(calibration: Calibration): void;
 }

@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Delegate, VisionPhase, VisionStartOptions } from '@/application/ports';
 import { FakeCamera } from '@/application/testing/fakes';
+import { defaultCalibration } from '@/application/vision';
 import { Soroban } from '@/domain';
 import type { BenchmarkResult, DelegateSample } from './tracker/delegateBenchmark';
 import { DELEGATE_KEY, DelegatePreference } from './tracker/delegatePreference';
 import type { HandTracker } from './tracker/MediaPipeHandTracker';
-import { type VisionServiceDeps, VisionService, defaultCalibration } from './VisionService';
+import { type VisionServiceDeps, VisionService } from './VisionService';
 
 const sample = (delegate: Delegate, ok = true): DelegateSample => ({
   delegate,
@@ -209,8 +210,8 @@ describe('VisionService', () => {
   it('sin calibración usa un recuadro centrado con las varillas del soroban', async () => {
     const { service, options, video } = setup();
     const result = await service.start(video, options({ getSoroban: () => Soroban.create(13) }));
-    expect(result.ok).toBe(true);
-    expect(defaultCalibration(13)).toMatchObject({ rodCount: 13, left: 0.15, right: 0.85 });
+    if (!result.ok) throw new Error(result.error);
+    expect(result.session.calibration).toEqual(defaultCalibration(13));
   });
 
   it('el modo compatibilidad fuerza la CPU y desactivarlo vuelve a medir', () => {
