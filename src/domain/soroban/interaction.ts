@@ -6,6 +6,8 @@ import type { Rod } from './Rod';
 export type EarthSlot = 0 | 1 | 2 | 3;
 export const EARTH_SLOTS: readonly EarthSlot[] = Object.freeze([0, 1, 2, 3]);
 
+export const isEarthSlot = (n: number): n is EarthSlot => Number.isInteger(n) && n >= 0 && n <= 3;
+
 /** Dirección de un arrastre relativa a la viga. */
 export type BeamDirection = 'toward' | 'away';
 

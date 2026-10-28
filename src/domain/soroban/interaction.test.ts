@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Digit, EarthCount } from './Digit';
-import { EARTH_SLOTS, type EarthSlot, dragMove, earthTap, heavenTap } from './interaction';
+import {
+  EARTH_SLOTS,
+  type EarthSlot,
+  dragMove,
+  earthTap,
+  heavenTap,
+  isEarthSlot,
+} from './interaction';
 import { Rod } from './Rod';
 
 const EARTH_STATES: readonly EarthCount[] = [0, 1, 2, 3, 4];
@@ -76,5 +83,12 @@ describe('dragMove', () => {
     expect(dragMove(Rod.of(5), 'heaven', 'away')).toEqual({ deck: 'heaven', delta: -1 });
     expect(dragMove(Rod.of(5), 'heaven', 'toward')).toBeNull();
     expect(dragMove(Rod.of(0), 'heaven', 'away')).toBeNull();
+  });
+});
+
+describe('isEarthSlot', () => {
+  it('acepta 0..3 enteros', () => {
+    expect(EARTH_SLOTS.every(isEarthSlot)).toBe(true);
+    expect([-1, 4, 1.5, Number.NaN].some(isEarthSlot)).toBe(false);
   });
 });
