@@ -26,6 +26,16 @@ describe('ruleHint / failedRules', () => {
     );
   });
 
+  it('en las directas describe los pasos', () => {
+    const direct = { op: 'add', rule: 'direct', v: 0, d: 7, rod: 0, carry: false } as const;
+    expect(ruleHint(direct)).toBe(
+      'Directo: +7 · Bajá la cuenta del cielo (índice), subí 2 cuentas de tierra (pulgar)',
+    );
+    expect(ruleHint({ ...direct, op: 'sub', v: 3, d: 3 })).toBe(
+      'Directo: −3 · Bajá 3 cuentas de tierra (índice)',
+    );
+  });
+
   it('agrupa reglas falladas sin repetir', () => {
     const outcome = (failedRule: typeof five | typeof ten | null): ExerciseOutcome => ({
       exercise: readExercise('x', 1),

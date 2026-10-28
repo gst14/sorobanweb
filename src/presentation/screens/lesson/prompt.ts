@@ -4,6 +4,8 @@ import {
   RULE_LABELS,
   describeCarry,
   describeRule,
+  describeStep,
+  rodTechnique,
   ruleItemKey,
 } from '@/domain';
 import type { ExerciseOutcome } from '@/application/usecases';
@@ -29,9 +31,17 @@ export function exercisePrompt(exercise: Exercise): {
   }
 }
 
-/** Pista para la regla que falló: "Amigos del 5: +3 = +5 −2". */
+/**
+ * Pista para la regla que falló: "Amigos del 5: +3 = +5 −2".
+ * En las directas la fórmula no dice nada nuevo, así que se describen los pasos.
+ */
 export function ruleHint(use: RuleUse): string {
   const formula = describeRule(use);
+  if (use.rule === 'direct') {
+    const steps = rodTechnique(use.op, use.v, use.d).steps.map(describeStep);
+    const text = steps.join(', ').toLowerCase();
+    return `${RULE_LABELS.direct}: ${formula} · ${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+  }
   const carry = use.rule === 'ten' || use.rule === 'combined' ? ` · ${describeCarry(use.op)}` : '';
   return `${RULE_LABELS[use.rule]}: ${formula}${carry}`;
 }
