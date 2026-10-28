@@ -70,7 +70,10 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: 'domain',
           environment: 'node',
-          include: ['src/{domain,application}/**/*.test.ts'],
+          include: [
+            'src/{domain,application}/**/*.test.ts',
+            'src/infrastructure/vision/gesture/**/*.test.ts',
+          ],
         },
       },
       {
@@ -80,6 +83,7 @@ export default defineConfig(({ mode }) => ({
           environment: 'jsdom',
           setupFiles: ['src/test/setup.ts'],
           include: ['src/{presentation,infrastructure,app}/**/*.test.{ts,tsx}'],
+          exclude: ['src/infrastructure/vision/gesture/**'],
         },
       },
     ],
@@ -96,6 +100,12 @@ export default defineConfig(({ mode }) => ({
       ],
       thresholds: {
         'src/domain/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
+        'src/infrastructure/vision/gesture/**': {
+          lines: 100,
+          branches: 100,
+          functions: 100,
+          statements: 100,
+        },
       },
     },
   },

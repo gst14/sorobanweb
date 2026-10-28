@@ -103,6 +103,22 @@ export default tseslint.config(
     },
   },
 
+  // Lógica de gestos: TS puro y testeable sin cámara; el tiempo llega con cada frame.
+  {
+    files: ['src/infrastructure/vision/gesture/**/*.ts'],
+    rules: {
+      'no-restricted-imports': restrictImports(
+        ['@mediapipe/*', ...layer('presentation'), ...layer('app')],
+        'La lógica de gestos no depende de MediaPipe: recibe HandFrame.',
+      ),
+      'no-restricted-globals': ['error', 'window', 'document', 'navigator', 'performance'],
+      'no-restricted-properties': [
+        'error',
+        { object: 'Date', property: 'now', message: 'Usá el t del frame.' },
+      ],
+    },
+  },
+
   {
     files: ['src/presentation/**/*.{ts,tsx}'],
     rules: {
