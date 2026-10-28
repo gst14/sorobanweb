@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#3b2a1a"/>
+  <rect x="56" y="80" width="400" height="352" rx="28" fill="#e9dcc7"/>
+  <g stroke="#8b6b4a" stroke-width="10">
+    <line x1="156" y1="96" x2="156" y2="416"/>
+    <line x1="256" y1="96" x2="256" y2="416"/>
+    <line x1="356" y1="96" x2="356" y2="416"/>
+  </g>
+  <rect x="64" y="184" width="384" height="20" fill="#5a3a1f"/>
+  <g fill="#c0662f" stroke="#5a2e14" stroke-width="5">
+    <path d="M116 150l18-26h44l18 26-18 26h-44z"/>
+    <path d="M216 124l18-26h44l18 26-18 26h-44z"/>
+    <path d="M316 150l18-26h44l18 26-18 26h-44z"/>
+    <path d="M116 238l18-26h44l18 26-18 26h-44z"/>
+    <path d="M216 238l18-26h44l18 26-18 26h-44z"/>
+    <path d="M216 290l18-26h44l18 26-18 26h-44z"/>
+    <path d="M316 238l18-26h44l18 26-18 26h-44z"/>
+    <path d="M116 372l18-26h44l18 26-18 26h-44z"/>
+    <path d="M316 320l18-26h44l18 26-18 26h-44z"/>
+    <path d="M316 372l18-26h44l18 26-18 26h-44z"/>
+  </g>
+</svg>

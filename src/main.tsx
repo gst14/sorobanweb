@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
 import './index.css';
 import { App } from './app/App.tsx';
 import { createAppServices } from './app/composition.ts';
@@ -15,3 +16,6 @@ createRoot(root).render(
     </ServicesProvider>
   </StrictMode>,
 );
+
+// autoUpdate: el service worker nuevo se activa solo y la página se recarga al reabrir.
+registerSW({ immediate: true });

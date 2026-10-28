@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
-/** Versi�n fijada de @mediapipe/tasks-vision; nombra la cach� runtime para invalidarla al subirla. */
+/** Versión fijada de @mediapipe/tasks-vision; nombra la caché runtime para invalidarla al subirla. */
 const MEDIAPIPE_VERSION = '0.10.35';
 
 export default defineConfig(({ mode }) => ({
@@ -27,11 +27,12 @@ export default defineConfig(({ mode }) => ({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      // Íconos y <link> generados a partir de public/logo.svg (pwa-assets.config.ts).
+      pwaAssets: { config: true, overrideManifestIcons: true },
       manifest: {
         name: 'Soroban Trainer',
         short_name: 'Soroban',
-        description: 'Aprend� c�lculo mental con el soroban japon�s.',
+        description: 'Aprendé cálculo mental con el soroban japonés.',
         lang: 'es',
         display: 'standalone',
         orientation: 'any',
@@ -39,11 +40,10 @@ export default defineConfig(({ mode }) => ({
         scope: '.',
         theme_color: '#3b2a1a',
         background_color: '#f5efe6',
-        icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },
       workbox: {
         // El WASM (~11 MB por variante) y el modelo (~7,8 MB) no se precachean:
-        // superan el l�mite de 2 MiB y quien usa solo el modo t�ctil nunca los descarga.
+        // superan el límite de 2 MiB y quien usa solo el modo táctil nunca los descarga.
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,ogg,mp3}'],
         globIgnores: ['mediapipe/**', 'models/**'],
         navigateFallback: 'index.html',
