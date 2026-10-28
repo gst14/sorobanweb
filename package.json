@@ -13,7 +13,11 @@
     "typecheck": "tsc -b && tsc -p tsconfig.domain.json",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run coverage"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.35",
