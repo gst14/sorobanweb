@@ -137,4 +137,19 @@ describe('App', { timeout: 20_000 }, () => {
     expect(screen.getByRole('heading', { name: 'Mundos' })).toBeInTheDocument();
     expect(services.session.getState().session).toBeNull();
   });
+
+  it('el botón de mute silencia el clac durante la lección', async () => {
+    const services = renderApp();
+    services.settings.getState().set({ unlockAll: true });
+    const user = userEvent.setup({ delay: null });
+    await user.click(screen.getByRole('button', { name: 'Empezar' }));
+    await user.click(screen.getByRole('button', { name: /Sumar directo/ }));
+    const mute = screen.getByRole('button', { name: 'Silenciar sonidos' });
+    await user.click(mute);
+    expect(mute).toHaveAttribute('aria-pressed', 'true');
+    act(() => {
+      fireEvent.keyDown(screen.getByRole('group', { name: /^Soroban/ }), { key: 'ArrowUp' });
+    });
+    expect(services.fakeAudio.played).not.toContain('bead');
+  });
 });

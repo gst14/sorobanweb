@@ -59,6 +59,24 @@ export function LessonScreen({ lessonId, onExit }: LessonScreenProps) {
   );
 }
 
+function MuteButton() {
+  const muted = useSettings((s) => s.muted);
+  const set = useSettings((s) => s.set);
+  return (
+    <button
+      type="button"
+      className="ghost"
+      aria-pressed={muted}
+      aria-label="Silenciar sonidos"
+      onClick={() => {
+        set({ muted: !muted });
+      }}
+    >
+      {muted ? '🔇' : '🔊'}
+    </button>
+  );
+}
+
 function LessonHeader({ session, onExit }: { session: LessonSessionState; onExit: () => void }) {
   const { clock, session: store } = useServices();
   const lives = session.lesson.boss?.lives;
@@ -98,6 +116,7 @@ function LessonHeader({ session, onExit }: { session: LessonSessionState; onExit
             {Math.ceil(left / 1000)} s
           </span>
         )}
+        <MuteButton />
       </div>
       <progress max={session.exercises.length} value={session.outcomes.length} />
     </header>

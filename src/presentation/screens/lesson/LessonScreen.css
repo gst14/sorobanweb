@@ -18,6 +18,7 @@
 
 .lesson-header__stats {
   display: flex;
+  align-items: center;
   gap: 12px;
   font-variant-numeric: tabular-nums;
 }
