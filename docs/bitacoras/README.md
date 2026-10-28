@@ -11,10 +11,11 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 | Sesión | Fecha | Resumen |
 |---|---|---|
 | [01](2026-10-27-sesion-01.md) | 2026-10-27 | Plan aprobado; fase 0 completa; fase 1 completa en código (falta el QA en dispositivos) |
+| [02](2026-10-27-sesion-02.md) | 2026-10-27 | CI y deploy confirmados; desglose de la fase 2; bloque A de gestos completo y script del modelo |
 
 ## Estado actual
 
-Última actualización: 2026-10-27, sesión 01.
+Última actualización: 2026-10-27, sesión 02.
 
 ### Hecho
 
@@ -30,22 +31,26 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [x] Infraestructura: `PointerInput`, `KeyboardInput`, `WebAudioPort` con sonidos sintetizados y `DexieProgressRepo`.
 - [x] Presentación: `SorobanSvg`, layout responsive de 7, 13 o 17 varillas, pantallas de inicio, mundos, lección y resultado, y botón de mute.
 - [x] PWA: íconos, service worker y modo offline verificado en Chromium.
-- [x] `vercel.json` y CI en GitHub Actions.
+- [x] `vercel.json` y CI en GitHub Actions; CI en verde y deploy vivo en `https://sorobanweb.vercel.app`.
+- [x] Pista de las reglas directas con los pasos (`describeStep`).
+
+**Fase 2 · Gestos**
+- [x] Desglose fino en [PLAN.md](../PLAN.md#fase-2--gestos-detalle).
+- [x] Bloque A (2.1–2.8): landmarks, One Euro, pinch, calibración, `RodMapper`, `Pusher`, `PinchPointer` y `GestureEngine`, con 100 % de cobertura.
+- [x] 2.9: `scripts/fetch-model.mjs` con SHA-256, en `predev` y `prebuild`.
 
 ### Pendiente
 
+**Sin pushear:** los commits de la sesión 02 están solo en local.
+
 **Fase 1 · cierre (tarea 1.25)**
-- [ ] Revisar que el primer run de CI en GitHub Actions haya pasado.
-- [ ] Deploy en Vercel desde `gst14/sorobanweb`.
 - [ ] Checklist manual en un iPhone y un Android reales (ver [PLAN.md](../PLAN.md#estrategia-de-pruebas)). Lo prioritario: instalar, jugar en modo avión, oír el audio en iOS después de "Empezar" y rotar en medio de una lección.
 - [ ] Corregir lo que aparezca en esa prueba.
 
 **Mejoras chicas detectadas (opcionales)**
-- [ ] En las reglas directas, el feedback de error dice solo "Directo: +4"; podría describir los pasos (`describeStep`).
-- [ ] El bundle pesa 360 kB (114 kB gzip); evaluar dividir Dexie o las pantallas.
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
-**Fase 2 · Gestos**: no iniciada. Hitos en [PLAN.md](../PLAN.md#fases-2-a-4-hitos-y-riesgos).
+**Fase 2 · Gestos**: bloques B a D, desde la 2.10 (cámara, tracker, bucle, delegado, pantallas, calibración y medición).
 
 **Fase 3 · Gamificación**: no iniciada.
 
