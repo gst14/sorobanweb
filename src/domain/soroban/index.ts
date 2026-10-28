@@ -5,3 +5,4 @@ export * from './Move';
 export * from './Rod';
 export * from './rules';
 export * from './Soroban';
+export * from './technique';
