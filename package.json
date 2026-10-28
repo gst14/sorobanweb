@@ -7,7 +7,9 @@
     "node": ">=24"
   },
   "scripts": {
+    "predev": "node scripts/fetch-model.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/fetch-model.mjs",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b && tsc -p tsconfig.domain.json",
