@@ -37,3 +37,10 @@ export function hand({
 /** Mano con el pinch en una razón dada (distancia 4↔8 / tamaño de la mano). */
 export const pinchAt = (ratio: number, t = 0, scale = 0.2): HandFrame =>
   hand({ t, scale, thumb: { x: 0.5, y: 0.5 }, index: { x: 0.5 + ratio * scale, y: 0.5 } });
+
+/**
+ * Mano con la punta del índice en (x, y) y el pulgar a su izquierda: pegado si `pinched`
+ * (razón 0,1) o separado (razón 0,6).
+ */
+export const pointerHand = (t: number, x: number, y: number, pinched: boolean, scale = 0.2) =>
+  hand({ t, scale, index: { x, y }, thumb: { x: x - (pinched ? 0.1 : 0.6) * scale, y } });
