@@ -1,0 +1,37 @@
+.keypad {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 320px);
+  margin-inline: auto;
+}
+
+.keypad__display {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 1.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  border: 2px solid var(--frame-bg);
+}
+
+.keypad__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.keypad__grid button {
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid var(--frame-bg);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.3rem;
+}
+
+.keypad__ok {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
