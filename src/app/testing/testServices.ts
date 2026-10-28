@@ -1,7 +1,7 @@
 import {
   FakeAudio,
-  FakeCamera,
   FakeClock,
+  FakeVision,
   InMemoryProgressRepo,
   seededRng,
 } from '@/application/testing/fakes';
@@ -11,7 +11,7 @@ import { assembleServices } from '../assemble';
 
 export interface TestServices extends AppServices {
   readonly fakeAudio: FakeAudio;
-  readonly fakeCamera: FakeCamera;
+  readonly fakeVision: FakeVision;
   readonly fakeClock: FakeClock;
   readonly fakeProgress: InMemoryProgressRepo;
 }
@@ -19,12 +19,12 @@ export interface TestServices extends AppServices {
 /** Servicios con puertos falsos y entradas reales, para tests de componentes. */
 export function createTestServices(): TestServices {
   const fakeAudio = new FakeAudio();
-  const fakeCamera = new FakeCamera();
+  const fakeVision = new FakeVision();
   const fakeClock = new FakeClock(0);
   const fakeProgress = new InMemoryProgressRepo();
   const services = assembleServices({
     audio: fakeAudio,
-    camera: fakeCamera,
+    vision: fakeVision,
     progress: fakeProgress,
     clock: fakeClock,
     rng: seededRng,
@@ -35,5 +35,5 @@ export function createTestServices(): TestServices {
         new KeyboardInput({ element, getSoroban, clock: fakeClock, ...callbacks }),
     },
   });
-  return { ...services, fakeAudio, fakeCamera, fakeClock, fakeProgress };
+  return { ...services, fakeAudio, fakeVision, fakeClock, fakeProgress };
 }

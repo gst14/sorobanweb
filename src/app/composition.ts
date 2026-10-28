@@ -6,9 +6,18 @@ import {
   SorobanDb,
   requestPersistentStorage,
 } from '@/infrastructure/persistence';
-import { BrowserCamera } from '@/infrastructure/vision';
+import { BrowserCamera, DelegatePreference, VisionService } from '@/infrastructure/vision';
 import type { AppServices } from '@/presentation/services';
 import { assembleServices } from './assemble';
+
+/** Con el storage bloqueado (algunos modos privados), acceder a `localStorage` lanza. */
+function localStorageOrUndefined(): Storage | undefined {
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+}
 
 /** Composition root: las implementaciones reales de cada puerto. */
 export function createAppServices(): AppServices {
@@ -16,10 +25,13 @@ export function createAppServices(): AppServices {
   void requestPersistentStorage();
   return assembleServices({
     audio: new WebAudioPort(),
-    camera: new BrowserCamera({
-      isSecureContext: window.isSecureContext,
-      // En HTTP es undefined aunque los tipos del DOM digan lo contrario.
-      mediaDevices: navigator.mediaDevices,
+    vision: new VisionService({
+      camera: new BrowserCamera({
+        isSecureContext: window.isSecureContext,
+        // En HTTP es undefined aunque los tipos del DOM digan lo contrario.
+        mediaDevices: navigator.mediaDevices,
+      }),
+      preference: new DelegatePreference(localStorageOrUndefined()),
     }),
     progress: new DexieProgressRepo(new SorobanDb()),
     clock,

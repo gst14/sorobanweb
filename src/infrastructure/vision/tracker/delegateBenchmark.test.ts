@@ -114,19 +114,19 @@ describe('measureDelegate', () => {
   it('un delegado que no carga da ok: false', async () => {
     const { opts, closed } = options({ GPU: new Error('sin WebGL2') });
     const s = await measureDelegate('GPU', opts);
-    expect(s).toMatchObject({ ok: false, frames: 0, medianMs: Infinity });
+    expect(s).toMatchObject({ ok: false, frames: 0, medianMs: Infinity, failure: 'load' });
     expect(closed).toEqual([]);
   });
 
   it('un detect que lanza da ok: false y cierra el tracker', async () => {
     const { opts, closed } = options({ GPU: { ms: 10, throwAt: 7 } });
-    expect((await measureDelegate('GPU', opts)).ok).toBe(false);
+    expect(await measureDelegate('GPU', opts)).toMatchObject({ ok: false, failure: 'detect' });
     expect(closed).toEqual(['GPU']);
   });
 
   it('un video trabado da ok: false', async () => {
     const { opts, closed } = options({ CPU: { ms: 10 } }, {}, true);
-    expect((await measureDelegate('CPU', opts)).ok).toBe(false);
+    expect(await measureDelegate('CPU', opts)).toMatchObject({ ok: false, failure: 'stalled' });
     expect(closed).toEqual(['CPU']);
     expect(STALL_FRAMES).toBeGreaterThan(30);
   });

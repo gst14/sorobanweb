@@ -1,18 +1,7 @@
-/**
- * Landmark normalizado, compatible con `NormalizedLandmark` de MediaPipe sin depender de él.
- * x e y en [0, 1] sobre el frame, ya en espacio pantalla (x espejada para la cámara frontal).
- */
-export interface Landmark {
-  readonly x: number;
-  readonly y: number;
-  readonly z?: number;
-}
+import type { HandFrame, Landmark } from '@/application/ports';
 
-/** Una mano detectada en un frame: los 21 landmarks y el instante del frame en ms. */
-export interface HandFrame {
-  readonly t: number;
-  readonly landmarks: readonly Landmark[];
-}
+// Los tipos viven en el puerto de visión para que la UI (overlay) los use sin importar de acá.
+export type { HandFrame, Landmark };
 
 /** Dedos que empujan cuentas: pulgar (punta 4) e índice (punta 8). */
 export type PusherFinger = 'thumb' | 'index';

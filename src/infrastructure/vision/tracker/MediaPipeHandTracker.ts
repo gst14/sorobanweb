@@ -1,16 +1,12 @@
 import type { HandLandmarker, HandLandmarkerOptions } from '@mediapipe/tasks-vision';
-import type { HandFrame, Landmark } from '../gesture/landmarks';
+import type { Delegate, TrackedHand } from '@/application/ports';
+import type { Landmark } from '../gesture/landmarks';
 
 /** Rutas del loader y del binario WASM; el paquete no exporta el tipo. */
 export type WasmFileset = Parameters<typeof HandLandmarker.createFromOptions>[0];
 
-/** Backend de inferencia de MediaPipe. El benchmark (2.13) elige uno por dispositivo. */
-export type Delegate = 'GPU' | 'CPU';
-
-/** Una mano detectada, con la confianza de MediaPipe (score de handedness, 0..1). */
-export interface TrackedHand extends HandFrame {
-  readonly score: number;
-}
+// `score` de TrackedHand es el de handedness de MediaPipe. El benchmark (2.13) elige el delegado.
+export type { Delegate, TrackedHand };
 
 /** Lo que el tracker lee de cada resultado; `HandLandmarkerResult` lo cumple. */
 export interface HandResultLike {

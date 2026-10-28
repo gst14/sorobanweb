@@ -12,6 +12,8 @@ export interface DelegateSample {
   readonly detections: number;
   /** Mediana de la latencia de `detect`, en ms. */
   readonly medianMs: number;
+  /** Por qué falló: no cargó, `detect` lanzó, o el video dejó de avanzar (cámara trabada). */
+  readonly failure?: 'load' | 'detect' | 'stalled';
 }
 
 export interface BenchmarkVideo {
@@ -34,12 +36,13 @@ export interface MeasureOptions {
 /** Si la GPU detecta bastante menos que la CPU, está dando resultados erróneos. */
 export const MAX_RATE_DEFICIT = 0.15;
 
-const failed = (delegate: Delegate): DelegateSample => ({
+const failed = (delegate: Delegate, failure: DelegateSample['failure']): DelegateSample => ({
   delegate,
   ok: false,
   frames: 0,
   detections: 0,
   medianMs: Infinity,
+  ...(failure ? { failure } : {}),
 });
 
 export function median(values: readonly number[]): number {
@@ -49,6 +52,14 @@ export function median(values: readonly number[]): number {
   return sorted.length % 2 === 1
     ? (sorted[mid] ?? Infinity)
     : ((sorted[mid - 1] ?? Infinity) + (sorted[mid] ?? Infinity)) / 2;
+}
+
+/** El video dejó de entregar frames: es la cámara, no el delegado. */
+export class VideoStalledError extends Error {
+  constructor() {
+    super('El video no avanza');
+    this.name = 'VideoStalledError';
+  }
 }
 
 /** rAFs sin un frame nuevo (unos 2 s a 60 Hz) tras los cuales el video se da por trabado. */
@@ -64,7 +75,7 @@ function nextVideoFrame(
     let waited = 0;
     const check = () => {
       if (video.currentTime !== last) resolve(video.currentTime);
-      else if (++waited >= STALL_FRAMES) reject(new Error('El video no avanza'));
+      else if (++waited >= STALL_FRAMES) reject(new VideoStalledError());
       else scheduler.request(check);
     };
     scheduler.request(check);
@@ -88,7 +99,7 @@ export async function measureDelegate(
   try {
     tracker = await load(delegate);
   } catch {
-    return failed(delegate);
+    return failed(delegate, 'load');
   }
   const latencies: number[] = [];
   let detections = 0;
@@ -103,8 +114,8 @@ export async function measureDelegate(
       latencies.push(elapsed);
       if (hand) detections++;
     }
-  } catch {
-    return failed(delegate);
+  } catch (error) {
+    return failed(delegate, error instanceof VideoStalledError ? 'stalled' : 'detect');
   } finally {
     tracker.close();
   }
@@ -123,6 +134,11 @@ export function chooseDelegate(gpu: DelegateSample, cpu: DelegateSample): Delega
   if (rate(gpu) < rate(cpu) - MAX_RATE_DEFICIT) return 'CPU';
   return gpu.medianMs <= cpu.medianMs ? 'GPU' : 'CPU';
 }
+
+/** Ningún delegado anduvo porque el video no avanzaba: hay que culpar a la cámara. */
+export const cameraStalled = (result: BenchmarkResult): boolean =>
+  result.delegate === null &&
+  (result.gpu.failure === 'stalled' || result.cpu.failure === 'stalled');
 
 export interface BenchmarkResult {
   readonly delegate: Delegate | null;

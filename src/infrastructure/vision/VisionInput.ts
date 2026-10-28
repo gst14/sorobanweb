@@ -1,4 +1,4 @@
-import type { CameraSession, InputSource, MoveListener } from '@/application/ports';
+import type { CameraSession, Delegate, MoveListener, VisionSession } from '@/application/ports';
 import type { Soroban } from '@/domain';
 import type { Calibration } from './gesture/calibration';
 import {
@@ -14,7 +14,7 @@ export interface FrameScheduler {
   cancel(id: number): void;
 }
 
-const animationFrames: FrameScheduler = {
+export const animationFrames: FrameScheduler = {
   request: (callback) => requestAnimationFrame(callback),
   cancel: (id) => {
     cancelAnimationFrame(id);
@@ -47,7 +47,7 @@ export interface VisionInputOptions {
  * por el tracker y el motor de gestos y emite los movimientos. Es dueña de la cámara y del
  * tracker: `stop()` los libera, y la instancia no se vuelve a arrancar.
  */
-export class VisionInput implements InputSource {
+export class VisionInput implements VisionSession {
   readonly kind = 'vision';
   private readonly options: VisionInputOptions;
   private readonly scheduler: FrameScheduler;
@@ -67,6 +67,10 @@ export class VisionInput implements InputSource {
 
   get mode(): GestureMode {
     return this.engine.mode;
+  }
+
+  get delegate(): Delegate {
+    return this.options.tracker.delegate;
   }
 
   start(onMove: MoveListener): void {

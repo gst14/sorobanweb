@@ -1,4 +1,4 @@
-import type { AudioPort, CameraPort, Clock, ProgressRepo, RngFactory } from '@/application/ports';
+import type { AudioPort, Clock, ProgressRepo, RngFactory, VisionPort } from '@/application/ports';
 import { createLessonUseCases } from '@/application/usecases';
 import type { AppServices, InputFactories } from '@/presentation/services';
 import { createProgressStore } from '@/presentation/stores/progressStore';
@@ -7,7 +7,7 @@ import { createSettingsStore } from '@/presentation/stores/settingsStore';
 
 export interface Ports {
   readonly audio: AudioPort;
-  readonly camera: CameraPort;
+  readonly vision: VisionPort;
   readonly progress: ProgressRepo;
   readonly clock: Clock;
   readonly rng: RngFactory;
@@ -29,7 +29,7 @@ export function assembleServices(ports: Ports): AppServices {
 
   return {
     audio: ports.audio,
-    camera: ports.camera,
+    vision: ports.vision,
     progress: ports.progress,
     clock: ports.clock,
     inputs: ports.inputs,

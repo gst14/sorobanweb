@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { type StoreApi, useStore } from 'zustand';
-import type { AudioPort, CameraPort, Clock, InputSource, ProgressRepo } from '@/application/ports';
+import type { AudioPort, Clock, InputSource, ProgressRepo, VisionPort } from '@/application/ports';
 import type { Soroban } from '@/domain';
 import type { ProgressStore } from './stores/progressStore';
 import type { SessionStore } from './stores/sessionStore';
@@ -24,7 +24,7 @@ export interface InputFactories {
 /** Todo lo que la UI necesita, armado en el composition root (src/app). */
 export interface AppServices {
   readonly audio: AudioPort;
-  readonly camera: CameraPort;
+  readonly vision: VisionPort;
   readonly progress: ProgressRepo;
   readonly clock: Clock;
   readonly inputs: InputFactories;

@@ -1,20 +1,7 @@
+import type { Calibration } from '@/application/ports';
 import { type Deck, type EarthSlot, type Rod, EARTH_SLOTS } from '@/domain';
 
-/**
- * Dónde está el soroban "en el aire", en coordenadas normalizadas de pantalla.
- * Lo produce la calibración (índice en la viga y en las varillas extremas).
- */
-export interface Calibration {
-  /** x del borde izquierdo del ROI (varilla `rodCount − 1`). */
-  readonly left: number;
-  /** x del borde derecho del ROI (varilla 0). */
-  readonly right: number;
-  /** y de la viga. */
-  readonly beamY: number;
-  /** Alto de una cuenta, en unidades de y. */
-  readonly beadHeight: number;
-  readonly rodCount: number;
-}
+export type { Calibration };
 
 /** Recorrido de cada sección en alturas de cuenta: cielo = 1 cuenta + hueco; tierra = 4 + hueco. */
 export const HEAVEN_TRACK = 2;
