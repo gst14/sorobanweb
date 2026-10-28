@@ -10,7 +10,10 @@
     "dev": "vite",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b && tsc -p tsconfig.domain.json"
+    "typecheck": "tsc -b && tsc -p tsconfig.domain.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.35",
