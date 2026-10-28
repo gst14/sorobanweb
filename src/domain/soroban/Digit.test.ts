@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { DIGITS, NON_ZERO_DIGITS, isDigit, isEarthCount, toDigit, toEarthCount } from './Digit';
+import {
+  DIGITS,
+  NON_ZERO_DIGITS,
+  digitsOf,
+  isDigit,
+  isEarthCount,
+  toDigit,
+  toEarthCount,
+} from './Digit';
 
 describe('Digit', () => {
   it('DIGITS contiene 0..9 y NON_ZERO_DIGITS 1..9, congelados', () => {
@@ -33,5 +41,12 @@ describe('Digit', () => {
   it('toEarthCount devuelve el valor o lanza RangeError', () => {
     expect(toEarthCount(3)).toBe(3);
     expect(() => toEarthCount(5)).toThrow(RangeError);
+  });
+
+  it('digitsOf devuelve los dígitos de derecha a izquierda', () => {
+    expect(digitsOf(8036)).toEqual([6, 3, 0, 8]);
+    expect(digitsOf(0)).toEqual([0]);
+    expect(() => digitsOf(-1)).toThrow(RangeError);
+    expect(() => digitsOf(1.5)).toThrow(RangeError);
   });
 });

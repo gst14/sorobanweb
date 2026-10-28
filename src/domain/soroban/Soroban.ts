@@ -1,16 +1,7 @@
-import { type Digit, toDigit } from './Digit';
+import { type Digit, digitsOf } from './Digit';
 import { InvalidMoveError } from './errors';
 import type { Move } from './Move';
 import { Rod } from './Rod';
-
-/** 8036 → [6, 3, 0, 8]; 0 → [0]. */
-function toDigitsRightToLeft(n: number): Digit[] {
-  const digits: Digit[] = [toDigit(n % 10)];
-  for (let rest = Math.floor(n / 10); rest > 0; rest = Math.floor(rest / 10)) {
-    digits.push(toDigit(rest % 10));
-  }
-  return digits;
-}
 
 function assertRodCount(count: number): void {
   if (!Number.isInteger(count) || count < 3 || count % 2 === 0) {
@@ -51,11 +42,8 @@ export class Soroban {
 
   /** Coloca el entero `n` a partir de la varilla de unidades. */
   static fromNumber(n: number, rodCount: number, unitRod = 0): Soroban {
-    if (!Number.isSafeInteger(n) || n < 0) {
-      throw new RangeError(`Se esperaba un entero seguro no negativo: ${n}`);
-    }
+    const digits = digitsOf(n);
     const empty = Soroban.create(rodCount, unitRod);
-    const digits = toDigitsRightToLeft(n);
     if (unitRod + digits.length > rodCount) {
       throw new RangeError(`${n} no entra en ${rodCount} varillas con unidad en ${unitRod}`);
     }
