@@ -10,7 +10,7 @@ export interface Settings {
 }
 
 export interface SettingsStore extends Settings {
-  set(patch: Partial<Settings>): void;
+  readonly set: (patch: Partial<Settings>) => void;
 }
 
 export const DEFAULT_SETTINGS: Settings = { muted: false, showValue: false, unlockAll: false };

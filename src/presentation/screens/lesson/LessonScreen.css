@@ -1,0 +1,118 @@
+.screen--lesson {
+  display: grid;
+  gap: 12px;
+  max-width: 1100px;
+}
+
+.lesson-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.lesson-header h1 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.lesson-header__stats {
+  display: flex;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-header progress {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 6px;
+  accent-color: var(--accent);
+}
+
+.exercise {
+  display: grid;
+  gap: 12px;
+}
+
+.exercise__prompt {
+  text-align: center;
+}
+
+.exercise__prompt p {
+  margin: 0;
+}
+
+.exercise__expression {
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.exercise__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.exercise__actions button {
+  flex: 1;
+  max-width: 200px;
+}
+
+.feedback {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.feedback p {
+  margin: 0;
+}
+
+.feedback__title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.feedback--ok .feedback__title {
+  color: var(--ok);
+}
+
+.feedback--error .feedback__title {
+  color: var(--error);
+}
+
+.result {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.result ul {
+  text-align: left;
+  margin-inline: auto;
+}
+
+.result__score {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .exercise {
+    grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+    align-items: center;
+  }
+
+  .exercise__board {
+    grid-row: span 3;
+  }
+
+  .soroban {
+    max-height: 78dvh;
+  }
+}

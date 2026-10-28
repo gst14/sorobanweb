@@ -4,7 +4,7 @@ import type { ProgressRepo } from '@/application/ports';
 export interface ProgressStore {
   readonly passed: ReadonlySet<string>;
   readonly loaded: boolean;
-  refresh(): Promise<void>;
+  readonly refresh: () => Promise<void>;
 }
 
 export const createProgressStore = (repo: ProgressRepo) =>

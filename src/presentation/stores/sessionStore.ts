@@ -11,14 +11,14 @@ import type { Move } from '@/domain';
 export interface SessionStore {
   readonly session: LessonSessionState | null;
   readonly lastOutcome: ExerciseOutcome | null;
-  start(lessonId: string, rodCount: number): void;
-  move(move: Move): void;
-  reset(): void;
-  resize(rodCount: number): void;
-  submit(typed?: number): Promise<void>;
-  next(): Promise<void>;
-  expire(): Promise<void>;
-  quit(): void;
+  readonly start: (lessonId: string, rodCount: number) => void;
+  readonly move: (move: Move) => void;
+  readonly reset: () => void;
+  readonly resize: (rodCount: number) => void;
+  readonly submit: (typed?: number) => Promise<void>;
+  readonly next: () => Promise<void>;
+  readonly expire: () => Promise<void>;
+  readonly quit: () => void;
 }
 
 /** Estado de la lección en curso. Las reglas viven en los casos de uso; acá solo se guardan. */
