@@ -1,4 +1,4 @@
-.screen--lesson {
+.screen.screen--lesson {
   display: grid;
   gap: 12px;
   max-width: 1100px;
@@ -103,17 +103,70 @@
   font-weight: 700;
 }
 
+/*
+ * Mobile horizontal: el soroban ocupa toda la altura a la izquierda (así 13 varillas llegan a
+ * celdas de ~44 px) y el header, el enunciado y las acciones van en la columna derecha.
+ */
 @media (orientation: landscape) and (max-height: 600px) {
+  /* Columna lateral angosta: con 13 varillas en 844 px el soroban necesita ~650 px de ancho. */
+  .screen.screen--lesson {
+    grid-template-columns: minmax(0, 1fr) clamp(150px, 18vw, 280px);
+    grid-auto-flow: dense;
+    align-content: start;
+    max-width: none;
+    padding: 8px 12px;
+    column-gap: 16px;
+  }
+
+  .screen--lesson > * {
+    grid-column: 2;
+  }
+
   .exercise {
-    grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
-    align-items: center;
+    display: contents;
+  }
+
+  .exercise > * {
+    grid-column: 2;
   }
 
   .exercise__board {
-    grid-row: span 3;
+    grid-column: 1;
+    grid-row: 1 / span 6;
+    align-self: center;
   }
 
-  .soroban {
-    max-height: 78dvh;
+  .exercise__board .soroban {
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .lesson-header {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    row-gap: 4px;
+  }
+
+  .lesson-header h1 {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: 0.95rem;
+  }
+
+  .lesson-header__stats {
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  .exercise__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exercise__actions button {
+    max-width: none;
+  }
+
+  .exercise__expression {
+    font-size: 1.8rem;
   }
 }
