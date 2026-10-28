@@ -86,7 +86,13 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx', 'src/**/*.d.ts'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.fixtures.ts',
+        'src/test/**',
+        'src/main.tsx',
+        'src/**/*.d.ts',
+      ],
       thresholds: {
         'src/domain/**': { lines: 100, branches: 100, functions: 100, statements: 100 },
       },
