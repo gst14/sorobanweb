@@ -12,10 +12,11 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 |---|---|---|
 | [01](2026-10-27-sesion-01.md) | 2026-10-27 | Plan aprobado; fase 0 completa; fase 1 completa en código (falta el QA en dispositivos) |
 | [02](2026-10-27-sesion-02.md) | 2026-10-27 | CI y deploy confirmados; desglose de la fase 2; bloque A de gestos, script del modelo y puerto de cámara (2.1–2.10) |
+| [03](2026-10-27-sesion-03.md) | 2026-10-27 | Bloque B de gestos: tracker de MediaPipe en chunk aparte, `VisionInput` y benchmark de delegado (2.11–2.13) |
 
 ## Estado actual
 
-Última actualización: 2026-10-27, sesión 02.
+Última actualización: 2026-10-27, sesión 03.
 
 ### Hecho
 
@@ -39,6 +40,9 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [x] Bloque A (2.1–2.8): landmarks, One Euro, pinch, calibración, `RodMapper`, `Pusher`, `PinchPointer` y `GestureEngine`, con 100 % de cobertura.
 - [x] 2.9: `scripts/fetch-model.mjs` con SHA-256, en `predev` y `prebuild`; Vercel sirve el modelo.
 - [x] 2.10: `CameraPort` (en `application/ports`, sin DOM) y `BrowserCamera` con errores tipados.
+- [x] 2.11: `MediaPipeHandTracker` con `import()` dinámico (chunk `vision_bundle` aparte, fuera del precache) y espejado.
+- [x] 2.12: `VisionInput`, con bucle rAF fuera de React; `stop()` libera la cámara y el tracker.
+- [x] 2.13 (lógica): benchmark GPU/CPU y `DelegatePreference` por dispositivo, con "modo compatibilidad" forzado.
 
 ### Pendiente
 
@@ -49,7 +53,10 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 **Mejoras chicas detectadas (opcionales)**
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
-**Fase 2 · Gestos**: bloques B a D, desde la 2.11 (tracker, bucle, delegado, pantallas, calibración y medición).
+**Fase 2 · Gestos**
+- [ ] Push de los 4 commits de la sesión 03.
+- [ ] Bloque C (2.14–2.17): puerto de visión para la UI, pantalla de cámara, overlay, calibración y selector de modo (con el botón "modo compatibilidad" de la 2.13).
+- [ ] Bloque D (2.18–2.19): grabador de sesiones y medición en dispositivos.
 
 **Fase 3 · Gamificación**: no iniciada.
 
