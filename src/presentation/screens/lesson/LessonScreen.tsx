@@ -6,10 +6,12 @@ import {
   sessionScore,
 } from '@/application/usecases';
 import { expectedValue, isLessonPassed } from '@/domain';
+import { InputModeSelector } from '../../components/InputModeSelector';
 import { NumericKeypad } from '../../components/NumericKeypad';
 import { InteractiveSoroban } from '../../components/soroban/InteractiveSoroban';
 import { useRodLayout } from '../../hooks/useRodLayout';
 import { useServices, useSession, useSettings } from '../../services';
+import { LessonCamera } from './LessonCamera';
 import { exercisePrompt, failedRules, ruleHint } from './prompt';
 import './LessonScreen.css';
 
@@ -21,10 +23,16 @@ export interface LessonScreenProps {
 /** Tiempo de feedback antes de avanzar solo en jefes contra reloj. */
 const TIMED_FEEDBACK_MS = 500;
 
+/** Con la cámara, 7 varillas: en el aire cada una necesita ancho de sobra. */
+const CAMERA_RODS = 7;
+
 export function LessonScreen({ lessonId, onExit }: LessonScreenProps) {
   const { session: store } = useServices();
   const session = useSession((s) => s.session);
-  const rodCount = useRodLayout();
+  const inputMode = useSettings((s) => s.inputMode);
+  const setSettings = useSettings((s) => s.set);
+  const layoutRods = useRodLayout();
+  const rodCount = inputMode === 'touch' ? layoutRods : CAMERA_RODS;
   // La lección arranca con las varillas del momento; las rotaciones se manejan con resize.
   const initialRods = useRef(rodCount);
 
@@ -53,7 +61,18 @@ export function LessonScreen({ lessonId, onExit }: LessonScreenProps) {
           onExit={onExit}
         />
       ) : (
-        <ExerciseView key={currentExercise(session).id} session={session} />
+        <>
+          {/* Al terminar la lección la cámara se apaga: se desmonta con el resultado. */}
+          {inputMode !== 'touch' && <LessonCamera mode={inputMode} rodCount={rodCount} />}
+          <ExerciseView key={currentExercise(session).id} session={session} />
+          <InputModeSelector
+            legend="Mover las cuentas"
+            value={inputMode}
+            onChange={(mode) => {
+              setSettings({ inputMode: mode });
+            }}
+          />
+        </>
       )}
     </main>
   );

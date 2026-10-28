@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { WORLDS, isUnlocked } from '@/domain';
+import { InputModeSelector } from '../components/InputModeSelector';
 import { useProgress, useServices, useSettings } from '../services';
 
 export interface WorldListScreenProps {
@@ -13,6 +14,7 @@ export function WorldListScreen({ onOpenLesson, onOpenCamera }: WorldListScreenP
   const unlockAll = useSettings((s) => s.unlockAll);
   const muted = useSettings((s) => s.muted);
   const showValue = useSettings((s) => s.showValue);
+  const inputMode = useSettings((s) => s.inputMode);
   const setSettings = useSettings((s) => s.set);
 
   useEffect(() => {
@@ -57,6 +59,13 @@ export function WorldListScreen({ onOpenLesson, onOpenCamera }: WorldListScreenP
       </button>
       <details className="options">
         <summary>Opciones</summary>
+        <InputModeSelector
+          legend="Mover las cuentas en las lecciones"
+          value={inputMode}
+          onChange={(mode) => {
+            setSettings({ inputMode: mode });
+          }}
+        />
         <label>
           <input
             type="checkbox"

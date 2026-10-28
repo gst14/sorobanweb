@@ -1,0 +1,52 @@
+.input-mode {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.input-mode legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Botones segmentados: cada opción es un radio con su label como área de toque de 44 px. */
+.input-mode__options {
+  display: flex;
+  border: 1px solid var(--frame-bg);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.input-mode__options label {
+  flex: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding-inline: 8px;
+  cursor: pointer;
+}
+
+.input-mode__options label + label {
+  border-left: 1px solid var(--frame-bg);
+}
+
+.input-mode__options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.input-mode__options label:has(input:checked) {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.input-mode__options label:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+}

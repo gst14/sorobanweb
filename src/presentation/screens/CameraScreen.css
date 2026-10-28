@@ -9,52 +9,12 @@
   font-size: 1.3rem;
 }
 
-/* El overlay se apoya sobre la caja del video; las bandas del `contain` las resuelve el dibujo. */
-.camera__view {
-  position: relative;
-  margin-block: 16px;
-}
-
-.camera__view[hidden] {
-  display: none;
-}
-
-/* La cámara frontal se muestra espejada, igual que las coordenadas del tracker. */
-.camera__video {
-  display: block;
-  width: 100%;
-  max-height: 60svh;
-  border-radius: 12px;
-  background: var(--frame-bg);
-  object-fit: contain;
-  transform: scaleX(-1);
-}
-
 .camera__facts {
   padding-left: 1.2em;
 }
 
 .camera__facts li + li {
   margin-top: 6px;
-}
-
-.camera__status {
-  font-weight: 600;
-}
-
-.camera__status--ok {
-  color: var(--ok);
-}
-
-.camera__error h2 {
-  color: var(--error);
-  font-size: 1.1rem;
-}
-
-.camera__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 
 .camera__compat {
@@ -73,11 +33,21 @@
   display: block;
 }
 
-.camera__issue {
-  color: var(--error);
-}
-
 .camera__practice {
   max-width: 480px;
   margin-block: 12px;
+}
+
+.camera__ready {
+  display: grid;
+  gap: 8px;
+}
+
+.camera__ready p {
+  margin: 0;
+}
+
+.camera .input-mode {
+  margin-top: 24px;
+  max-width: 360px;
 }

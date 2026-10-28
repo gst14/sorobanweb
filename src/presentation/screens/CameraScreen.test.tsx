@@ -307,4 +307,29 @@ describe('CameraScreen', () => {
     });
     expect(services.fakeAudio.played).toHaveLength(1);
   });
+
+  it('el gesto elegido se guarda y cambia el modo sin reabrir la cámara', async () => {
+    const { services, user } = renderCamera();
+    expect(screen.getByRole('radio', { name: 'Empuje' })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: 'Táctil' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+    const session = lastSession(services);
+
+    await user.click(screen.getByRole('radio', { name: 'Puntero' }));
+    expect(session.mode).toBe('pinch');
+    expect(services.settings.getState().inputMode).toBe('pinch');
+    expect(services.fakeVision.starts).toHaveLength(1);
+  });
+
+  it('con FPS bajos durante 3 s sugiere volver a táctil', async () => {
+    const { services, onExit, user } = renderCamera();
+    await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+    const session = lastSession(services);
+    act(() => {
+      for (let t = 0; t <= 4000; t += 200) session.frame(null, t);
+    });
+    expect(screen.getByText('Seguimiento: mala')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Pasar a táctil' }));
+    expect(onExit).toHaveBeenCalledOnce();
+  });
 });

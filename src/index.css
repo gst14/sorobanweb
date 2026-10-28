@@ -22,6 +22,7 @@
   --selection: rgb(31 111 235 / 0.12);
   --focus: #1f6feb;
   --ok: #1a7f37;
+  --warn: #9a6700;
   --error: #cf222e;
 }
 
@@ -41,6 +42,7 @@
     --selection: rgb(88 166 255 / 0.16);
     --focus: #58a6ff;
     --ok: #3fb950;
+    --warn: #d29922;
     --error: #ff7b72;
   }
 }

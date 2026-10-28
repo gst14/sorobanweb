@@ -169,4 +169,39 @@
   .exercise__expression {
     font-size: 1.8rem;
   }
+
+  /* En la columna angosta, los tres modos no entran en una fila. */
+  .screen--lesson .input-mode__options {
+    flex-direction: column;
+  }
+
+  .screen--lesson .input-mode__options label + label {
+    border-left: none;
+    border-top: 1px solid var(--frame-bg);
+  }
+}
+
+.lesson-camera {
+  display: grid;
+  gap: 8px;
+}
+
+.lesson-camera p {
+  margin: 0;
+}
+
+.lesson-camera .camera__view {
+  margin-block: 0;
+}
+
+/* En la lección el video comparte la pantalla con el enunciado y el soroban. */
+.lesson-camera .camera__video {
+  max-height: 32svh;
+}
+
+.lesson-camera__idle,
+.lesson-camera__ready {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
 }
