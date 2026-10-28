@@ -292,6 +292,57 @@ Mundos en el MVP: **0** (lectura 0–9 → 0–99 → 0–999), **1** (directo: 
 
 ---
 
+## Fase 2 · Gestos (detalle)
+
+Se ejecuta en cuatro bloques. El A es TS puro y se testea sin cámara, así que puede avanzar mientras se hace la QA de la fase 1; del B en adelante hace falta probar con una mano real frente a la cámara.
+
+**Dónde vive la lógica de gestos:** en `src/infrastructure/vision/gesture/`, sin importar MediaPipe (usa su propio tipo `Landmark`, estructuralmente compatible con `NormalizedLandmark`). No va en `src/domain` porque los filtros y detectores tienen estado mutable, y el dominio es inmutable. Igual se le exige el 100 % de cobertura y corre en el entorno node de Vitest.
+
+**Convenciones:** las coordenadas que entran al bloque A ya están en espacio pantalla (x espejada: `x → 1 − x`) y normalizadas a [0, 1] sobre el frame. El tiempo es el `performance.now()` del frame, en ms, inyectado.
+
+### A · Lógica de gestos (TS puro, 100 % de cobertura)
+
+| # | Tarea | Aceptación |
+|---|---|---|
+| 2.1 | `Landmark`, `HandFrame` y accesores con guardas: `fingertip(frame, 'thumb' \| 'index')`, `handScale` (muñeca → MCP del medio). Devuelven `null` si faltan landmarks | Un frame con menos de 21 landmarks no lanza |
+| 2.2 | `OneEuro` y `OneEuro2D` (§5.5) con `reset()` | La señal constante sale igual; el ruido blanco baja su varianza; un escalón se sigue con más retraso a `beta = 0` que a `beta > 0` |
+| 2.3 | `PinchDetector`: razón 4↔8 / 0↔9, entrada < 0,25, salida > 0,40, 3 frames de confirmación | Sin parpadeo con una razón que oscila entre 0,26 y 0,39; `start` y `end` exactamente una vez por pinch |
+| 2.4 | `Calibration` (`left`, `right`, `beamY`, `beadHeight`, `rodCount`) y `deckLayout`: posición de cada cuenta en unidades de cuenta según el estado de la varilla (cielo: 1 cuenta + 1 hueco; tierra: 4 cuentas + 1 hueco). `hitBead(rod, y)` devuelve la cuenta más cercana | Para los 10 valores de una varilla, cada cuenta se encuentra en su centro |
+| 2.5 | `RodMapper`: x → varilla (0 = derecha) con histéresis del 15 % del ancho; `null` fuera del ROI | Un temblor de ±10 % sobre el borde no cambia de varilla; un cruce del 20 % sí |
+| 2.6 | `Pusher` (modo empuje), uno por dedo: si en una ventana de 250 ms el dedo se desplaza al menos 0,35 cuentas, la cuenta donde empezó el trazo se arrastra con `dragMove`, como en `PointerInput`. Cooldown de 120 ms por varilla. Emite `Move` con `finger` | "Subir 3 y bajar 1" con trazos sintéticos deja 2; un movimiento lento (deriva) no emite; dos trazos en menos de 120 ms emiten uno |
+| 2.7 | `PinchPointer` (modo puntero + pinch): el índice es el cursor, dwell de 150 ms para fijar la varilla, el pinch agarra la cuenta bajo el cursor y el desplazamiento vertical la arrastra; soltar libera | Sin dwell no agarra; soltar el pinch a mitad del trazo no emite |
+| 2.8 | `GestureEngine`: `HandFrame \| null` → `Move[]`; tolera huecos de hasta 250 ms sin soltar el estado y después resetea todo; fixtures sintéticas de trazos | Una mano que desaparece 300 ms en medio de un pinch no deja la cuenta agarrada |
+
+### B · Cámara y tracker (infraestructura)
+
+| # | Tarea | Aceptación |
+|---|---|---|
+| 2.9 | `scripts/fetch-model.mjs`: descarga `hand_landmarker.task` (float16) a `public/models/` con verificación de SHA-256; corre en `prebuild` y el archivo queda en `.gitignore` | El build de Vercel incluye `models/hand_landmarker.task`; un hash distinto rompe el build |
+| 2.10 | `CameraPort` + `BrowserCamera`: `isSecureContext`, `getUserMedia` a 960×540 y 30 fps, `<video playsinline muted autoplay>`, errores tipados (`not-allowed`, `not-found`, `not-readable`, `insecure`) | Test con un `mediaDevices` falso para cada error |
+| 2.11 | `MediaPipeHandTracker`: `import()` dinámico de `@mediapipe/tasks-vision` (chunk aparte), WASM y modelo del mismo origen, `numHands: 1`, espejado `x → 1 − x` | En modo táctil el bundle inicial no crece y no hay requests a `mediapipe/` ni `models/` |
+| 2.12 | Bucle fuera de React: rAF y `detectForVideo` solo si cambió `video.currentTime`; `VisionInput implements InputSource` (kind `vision`) que conecta tracker → `GestureEngine` → `onMove` | `stop()` cancela el rAF y libera la cámara |
+| 2.13 | Benchmark de delegado: 30 frames con mano en GPU y en CPU, se elige por latencia y tasa de detección, guardado por dispositivo; botón "modo compatibilidad (CPU)" | El resultado persiste y se puede forzar CPU |
+
+### C · Presentación
+
+| # | Tarea | Aceptación |
+|---|---|---|
+| 2.14 | Pantalla "Activar modo cámara": explica por qué y que ningún frame sale del dispositivo; pide la cámara solo tras el tap; ante cualquier error ofrece volver a táctil | Los cuatro errores muestran su mensaje y la salida a táctil |
+| 2.15 | `<HandOverlay/>` en Canvas 2D espejado sobre el video: conexiones, punta del pulgar (verde, círculo) y del índice (azul, rombo), varilla y zona activas | Se ve alineado con la mano en 390×844 y 1280×800 |
+| 2.16 | Calibración de 10 s: índice en la viga y en las varillas extremas → `Calibration`; guardada por dispositivo y orientación | Rotar pide recalibrar solo si no hay calibración para esa orientación |
+| 2.17 | Selector de modo (táctil, empuje, puntero) e indicador de calidad (verde, ámbar, rojo según FPS y confianza); con rojo durante 3 s sugiere táctil | El modo elegido persiste; la sugerencia aparece con FPS simulados bajos |
+
+### D · Medición y QA
+
+| # | Tarea | Aceptación |
+|---|---|---|
+| 2.18 | Grabador de sesiones (solo en dev): exporta los `HandFrame` y los `Move` esperados a JSON; esas grabaciones entran como fixtures de regresión del bloque A | Una grabación real reproduce los mismos `Move` en el test |
+| 2.19 | Medición y QA en dispositivos: 95 % de movimientos reconocidos y menos de 1 falso positivo por minuto, en desktop, un iPhone y un Android, con el teléfono en un soporte | Criterio de salida de la fase 2 |
+
+**Plan B de rendimiento** (si en 2.19 los FPS no alcanzan): inferir cada 2 frames y extrapolar con el filtro; después, Web Worker con OffscreenCanvas.
+
+---
+
 ## Fases 2 a 4 (hitos y riesgos)
 
 **Fase 2 · Gestos (3–4 semanas).**
