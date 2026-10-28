@@ -1,4 +1,4 @@
-import type { Calibration } from '@/application/ports';
+import type { Calibration, CalibrationBox, CameraOrientation } from '@/application/ports';
 import type { Deck } from '@/domain';
 
 /**
@@ -42,3 +42,16 @@ export function rodAt(cal: Calibration, x: number): number | null {
   const column = Math.floor(((x - cal.left) / (cal.right - cal.left)) * cal.rodCount);
   return column >= 0 && column < cal.rodCount ? cal.rodCount - 1 - column : null;
 }
+
+/** La calibración guardada, con la cantidad de varillas de la pantalla actual. */
+export const withRods = (box: CalibrationBox, rodCount: number): Calibration => ({
+  left: box.left,
+  right: box.right,
+  beamY: box.beamY,
+  beadHeight: box.beadHeight,
+  rodCount,
+});
+
+/** Orientación del frame según su tamaño; sin tamaño todavía, horizontal. */
+export const orientationOf = (width: number, height: number): CameraOrientation =>
+  height > width ? 'portrait' : 'landscape';

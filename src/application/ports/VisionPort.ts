@@ -42,6 +42,15 @@ export interface Calibration {
   readonly rodCount: number;
 }
 
+/** La calibración sin la cantidad de varillas, que depende de la pantalla y no de la mano. */
+export type CalibrationBox = Omit<Calibration, 'rodCount'>;
+
+/**
+ * Orientación de la imagen de la cámara. Las coordenadas son relativas al frame, así que una
+ * calibración solo vale para la orientación en la que se hizo.
+ */
+export type CameraOrientation = 'portrait' | 'landscape';
+
 /** Backend de inferencia del tracker. Se elige uno por dispositivo. */
 export type Delegate = 'GPU' | 'CPU';
 
@@ -56,7 +65,7 @@ export type VisionPhase = 'camera' | 'benchmark' | 'loading';
 
 export interface VisionStartOptions {
   readonly mode: GestureMode;
-  /** Sin calibración se usa un recuadro centrado (provisorio hasta la calibración, 2.16). */
+  /** Sin calibración se usa un recuadro centrado hasta que el usuario calibre. */
   readonly calibration?: Calibration;
   readonly getSoroban: () => Soroban;
   readonly onPhase?: (phase: VisionPhase) => void;
@@ -93,4 +102,7 @@ export interface VisionPort {
   compatibilityMode(): boolean;
   /** Se aplica la próxima vez que arranque la cámara. Desactivarlo vuelve a medir. */
   setCompatibilityMode(on: boolean): void;
+  /** La calibración guardada en este dispositivo para esa orientación, si hay. */
+  savedCalibration(orientation: CameraOrientation): CalibrationBox | null;
+  saveCalibration(orientation: CameraOrientation, box: CalibrationBox): void;
 }

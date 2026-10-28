@@ -1,13 +1,18 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { VisionError } from '@/application/ports';
+import type { Landmark, TrackedHand, VisionError } from '@/application/ports';
+import { hand } from '@/application/vision/testing/hands';
 import { type TestServices, createTestServices } from '@/app/testing/testServices';
 import { ServicesProvider } from '../ServicesProvider';
 import { CameraScreen } from './CameraScreen';
 
-function renderCamera() {
+const BOX = { left: 0.2, right: 0.8, beamY: 0.45, beadHeight: 0.04 };
+
+/** Por defecto hay una calibración guardada para la imagen horizontal (en jsdom el video mide 0×0). */
+function renderCamera({ calibrated = true }: { calibrated?: boolean } = {}) {
   const services = createTestServices();
+  if (calibrated) services.fakeVision.saveCalibration('landscape', BOX);
   const onExit = vi.fn();
   const view = render(
     <ServicesProvider services={services}>
@@ -15,6 +20,27 @@ function renderCamera() {
     </ServicesProvider>,
   );
   return { services, onExit, view, user: userEvent.setup({ delay: null }) };
+}
+
+const tracked = (t: number, index: Landmark): TrackedHand => ({
+  ...hand({ t, index }),
+  score: 0.9,
+});
+
+/** Sostiene el índice quieto algo más de un segundo, un frame cada 50 ms, desde `t0`. */
+function holdIndex(services: TestServices, index: Landmark, t0: number): void {
+  const session = lastSession(services);
+  act(() => {
+    for (let t = t0; t <= t0 + 1100; t += 50) session.frame(tracked(t, index), t);
+  });
+}
+
+/** Cambia el tamaño que informa el video, como cuando se rota el teléfono. */
+function resizeVideo(container: HTMLElement, width: number, height: number): void {
+  const video = container.querySelector('video');
+  if (!video) throw new Error('No hay video');
+  Object.defineProperty(video, 'videoWidth', { configurable: true, value: width });
+  Object.defineProperty(video, 'videoHeight', { configurable: true, value: height });
 }
 
 const lastSession = (services: TestServices) => {
@@ -184,5 +210,101 @@ describe('CameraScreen', () => {
 
     await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
     expect(screen.getByText(/Usando la CPU \(modo compatibilidad\)/)).toBeInTheDocument();
+  });
+
+  describe('calibración', () => {
+    it('sin calibración guardada la pide, la guarda y después muestra el soroban de práctica', async () => {
+      const { services, user } = renderCamera({ calibrated: false });
+      await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+      expect(screen.getByRole('status')).toHaveTextContent(/paso 1 de 2/);
+      expect(screen.queryByRole('button', { name: 'Cancelar' })).not.toBeInTheDocument();
+
+      holdIndex(services, { x: 0.2, y: 0.4 }, 0);
+      expect(screen.getByRole('status')).toHaveTextContent(/Paso 2 de 2/);
+      holdIndex(services, { x: 0.8, y: 0.4 }, 2000);
+
+      expect(screen.getByRole('status')).toHaveTextContent('✓ Veo tu mano');
+      const saved = services.fakeVision.savedCalibration('landscape');
+      expect(saved?.left).toBeCloseTo(0.2);
+      expect(saved?.right).toBeCloseTo(0.8);
+      expect(lastSession(services).calibration).toEqual({ ...saved, rodCount: 7 });
+      expect(screen.getByRole('group', { name: /soroban/i })).toBeInTheDocument();
+    });
+
+    it('avisa si el segundo punto queda muy cerca del primero', async () => {
+      const { services, user } = renderCamera({ calibrated: false });
+      await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+      holdIndex(services, { x: 0.4, y: 0.4 }, 0);
+      holdIndex(services, { x: 0.5, y: 0.4 }, 2000);
+      expect(screen.getByText(/muy cerca del primero/)).toBeInTheDocument();
+      expect(services.fakeVision.savedCalibration('landscape')).toBeNull();
+    });
+
+    it('con una calibración guardada la usa sin pedir; Recalibrar se puede cancelar', async () => {
+      const { services, user } = renderCamera();
+      await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+      expect(lastSession(services).calibration).toEqual({ ...BOX, rodCount: 7 });
+      expect(screen.getByRole('status')).toHaveTextContent('Acercá una mano a la cámara');
+
+      await user.click(screen.getByRole('button', { name: 'Recalibrar' }));
+      expect(screen.getByRole('status')).toHaveTextContent(/paso 1 de 2/);
+      await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+      expect(screen.getByRole('button', { name: 'Recalibrar' })).toBeInTheDocument();
+      expect(lastSession(services).calibration).toEqual({ ...BOX, rodCount: 7 });
+    });
+
+    it('al rotar pide calibrar solo si no hay calibración para esa orientación', async () => {
+      const { services, view, user } = renderCamera();
+      await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+      const session = lastSession(services);
+
+      resizeVideo(view.container, 540, 960);
+      act(() => {
+        session.frame(null, 0);
+      });
+      expect(screen.getByRole('status')).toHaveTextContent(/paso 1 de 2/);
+      expect(screen.queryByRole('button', { name: 'Cancelar' })).not.toBeInTheDocument();
+
+      resizeVideo(view.container, 960, 540);
+      act(() => {
+        session.frame(null, 50);
+      });
+      expect(screen.getByRole('button', { name: 'Recalibrar' })).toBeInTheDocument();
+
+      services.fakeVision.saveCalibration('portrait', { ...BOX, left: 0.1 });
+      resizeVideo(view.container, 540, 960);
+      act(() => {
+        session.frame(null, 100);
+      });
+      expect(screen.getByRole('button', { name: 'Recalibrar' })).toBeInTheDocument();
+      expect(session.calibration.left).toBe(0.1);
+    });
+  });
+
+  it('los gestos mueven el soroban de práctica, salvo mientras se calibra', async () => {
+    const { services, user } = renderCamera();
+    await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+    const session = lastSession(services);
+    const up = { rod: 0, deck: 'earth', delta: 2, finger: 'thumb', at: 0 } as const;
+
+    act(() => {
+      session.emit(up);
+    });
+    expect(screen.getByRole('group', { name: 'Soroban, valor 2' })).toBeInTheDocument();
+    expect(services.fakeAudio.played).toEqual(['bead']);
+    // Inválido: ya hay 2 cuentas arriba y se piden 3 más.
+    act(() => {
+      session.emit({ ...up, delta: 3 });
+    });
+    expect(services.fakeAudio.played).toHaveLength(1);
+
+    await user.click(screen.getByRole('button', { name: 'Poner en cero' }));
+    expect(screen.getByRole('group', { name: 'Soroban, valor 0' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Recalibrar' }));
+    act(() => {
+      session.emit(up);
+    });
+    expect(services.fakeAudio.played).toHaveLength(1);
   });
 });

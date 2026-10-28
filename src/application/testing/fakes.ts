@@ -1,4 +1,4 @@
-import { createRng } from '@/domain';
+import { type Move, createRng } from '@/domain';
 import { defaultCalibration } from '../vision/calibration';
 import type { AudioCue, AudioPort } from '../ports/AudioPort';
 import type { CameraPort, CameraResult } from '../ports/CameraPort';
@@ -7,6 +7,8 @@ import type { AttemptRecord, LessonResultRecord, ProgressRepo } from '../ports/P
 import type { RngFactory } from '../ports/RngFactory';
 import type {
   Calibration,
+  CalibrationBox,
+  CameraOrientation,
   Delegate,
   GestureMode,
   TrackedHand,
@@ -115,6 +117,10 @@ export class FakeVisionSession implements VisionSession {
   setCalibration(calibration: Calibration): void {
     this.calibration = calibration;
   }
+  /** Simula un movimiento reconocido por el motor de gestos. */
+  emit(move: Move): void {
+    this.onMove?.(move);
+  }
   /** Simula un frame procesado por el tracker. */
   frame(hand: TrackedHand | null, t = 0): void {
     this.options.onFrame?.(hand, t);
@@ -137,6 +143,7 @@ export class FakeVision implements VisionPort {
   delegate: Delegate = 'GPU';
   phases: readonly VisionPhase[] = ['camera', 'loading'];
   compat = false;
+  readonly calibrations = new Map<CameraOrientation, CalibrationBox>();
   private held = false;
   private pending: (() => void) | null = null;
 
@@ -170,5 +177,11 @@ export class FakeVision implements VisionPort {
   }
   setCompatibilityMode(on: boolean): void {
     this.compat = on;
+  }
+  savedCalibration(orientation: CameraOrientation): CalibrationBox | null {
+    return this.calibrations.get(orientation) ?? null;
+  }
+  saveCalibration(orientation: CameraOrientation, box: CalibrationBox): void {
+    this.calibrations.set(orientation, box);
   }
 }

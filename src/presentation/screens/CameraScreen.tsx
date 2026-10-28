@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Delegate, VisionError, VisionPhase, VisionSession } from '@/application/ports';
+import type {
+  CameraOrientation,
+  Delegate,
+  VisionError,
+  VisionPhase,
+  VisionSession,
+} from '@/application/ports';
+import {
+  type CaptureIssue,
+  type CaptureStep,
+  CalibrationCapture,
+  orientationOf,
+  withRods,
+} from '@/application/vision';
 import { Soroban } from '@/domain';
+import { SorobanSvg } from '../components/soroban/SorobanSvg';
 import { HandOverlay, type HandOverlayHandle } from '../components/vision/HandOverlay';
 import { useServices } from '../services';
 import './CameraScreen.css';
@@ -63,22 +77,51 @@ const ERROR_TEXT: Readonly<Record<Exclude<VisionError, 'aborted'>, ErrorText>> =
   },
 };
 
-/** El modo cámara todavía no mueve cuentas acá: el soroban de la lección llega con la 2.16. */
-const PREVIEW_SOROBAN = Soroban.create(7);
+const CAPTURE_TEXT: Readonly<Record<CaptureStep, string>> = {
+  left: 'Calibración, paso 1 de 2: poné la punta del índice donde querés el extremo izquierdo de la viga y dejala quieta un segundo.',
+  right:
+    'Paso 2 de 2: ahora el extremo derecho de la viga, a la misma altura, y otro segundo quieto.',
+};
+
+const ISSUE_TEXT: Readonly<Record<CaptureIssue, string>> = {
+  'too-narrow':
+    'Ese punto quedó muy cerca del primero: alejalo más para que entren todas las varillas.',
+  'off-frame':
+    'Con la viga a esa altura el soroban no entra en la imagen. Probá con la viga más cerca de la mitad, desde el primer punto.',
+};
+
+/** Lo que muestra la pantalla mientras se calibra; el progreso se dibuja en el overlay. */
+interface CalibrationView {
+  readonly step: CaptureStep;
+  readonly issue: CaptureIssue | null;
+  /** Si se puede volver a la calibración guardada (al recalibrar, no cuando falta una). */
+  readonly canCancel: boolean;
+}
+
+/** Soroban de práctica: 7 varillas, para que en el aire cada una tenga ancho de sobra. */
+const ROD_COUNT = 7;
+const EMPTY_PRACTICE = Soroban.create(ROD_COUNT);
 
 /**
  * "Activar modo cámara": explica qué se hace con la imagen, pide la cámara solo después del
- * tap y, ante cualquier error, ofrece volver al modo táctil.
+ * tap y, ante cualquier error, ofrece volver al modo táctil. Con la cámara andando, pide
+ * calibrar si no hay calibración para la orientación de la imagen y después mueve un soroban
+ * de práctica con los gestos.
  */
 export function CameraScreen({ onExit }: { onExit: () => void }) {
-  const { vision } = useServices();
+  const { vision, audio } = useServices();
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HandOverlayHandle>(null);
   const sessionRef = useRef<VisionSession | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const handSeenRef = useRef(false);
+  const captureRef = useRef<CalibrationCapture | null>(null);
+  const orientationRef = useRef<CameraOrientation | null>(null);
+  const practiceRef = useRef(EMPTY_PRACTICE);
   const [state, setState] = useState<CameraState>({ status: 'idle' });
   const [handSeen, setHandSeen] = useState(false);
+  const [calibrating, setCalibrating] = useState<CalibrationView | null>(null);
+  const [practice, setPractice] = useState(EMPTY_PRACTICE);
   const [compat, setCompat] = useState(() => vision.compatibilityMode());
 
   const release = () => {
@@ -86,11 +129,60 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
     abortRef.current = null;
     sessionRef.current?.stop();
     sessionRef.current = null;
+    captureRef.current = null;
+    orientationRef.current = null;
     overlayRef.current?.clear();
   };
 
   // Al salir de la pantalla, la cámara se apaga aunque todavía esté arrancando.
   useEffect(() => release, []);
+
+  const beginCapture = (canCancel: boolean) => {
+    captureRef.current = new CalibrationCapture();
+    setCalibrating({ step: 'left', issue: null, canCancel });
+  };
+
+  const endCapture = () => {
+    captureRef.current = null;
+    setCalibrating(null);
+  };
+
+  /** Usa la calibración guardada para esa orientación o, si no hay, pide calibrar. */
+  const applyOrientation = (session: VisionSession, orientation: CameraOrientation) => {
+    orientationRef.current = orientation;
+    const saved = vision.savedCalibration(orientation);
+    if (!saved) {
+      beginCapture(false);
+      return;
+    }
+    session.setCalibration(withRods(saved, ROD_COUNT));
+    endCapture();
+  };
+
+  /** Al terminar la calibración, la guarda y la usa; si no, refleja el paso y el aviso. */
+  const followCapture = (
+    session: VisionSession,
+    capture: CalibrationCapture,
+    orientation: CameraOrientation,
+  ) => {
+    const box = capture.result;
+    if (box) {
+      vision.saveCalibration(orientation, box);
+      session.setCalibration(withRods(box, ROD_COUNT));
+      endCapture();
+      return;
+    }
+    const { step, issue } = capture;
+    // Devolver el mismo objeto evita re-renderizar en cada frame.
+    setCalibrating((view) =>
+      view && (view.step !== step || view.issue !== issue) ? { ...view, step, issue } : view,
+    );
+  };
+
+  const setPracticeSoroban = (soroban: Soroban) => {
+    practiceRef.current = soroban;
+    setPractice(soroban);
+  };
 
   const activate = async () => {
     const video = videoRef.current;
@@ -104,21 +196,30 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
 
     const result = await vision.start(video, {
       mode: 'push',
-      getSoroban: () => PREVIEW_SOROBAN,
+      getSoroban: () => practiceRef.current,
       signal: controller.signal,
       onPhase: (phase) => {
         setState({ status: 'starting', phase });
       },
       // El overlay se dibuja en cada frame sin pasar por React; la pantalla solo se
-      // re-renderiza cuando la mano aparece o desaparece.
-      onFrame: (hand) => {
+      // re-renderiza cuando la mano aparece o desaparece, o cambia el paso de la calibración.
+      onFrame: (hand, t) => {
         const session = sessionRef.current;
         if (session) {
+          // Al rotar el teléfono cambia la forma de la imagen, y con ella la calibración.
+          const orientation = orientationOf(video.videoWidth, video.videoHeight);
+          if (orientation !== orientationRef.current) applyOrientation(session, orientation);
+          const capture = captureRef.current;
+          if (capture) {
+            capture.update(hand, t);
+            followCapture(session, capture, orientation);
+          }
           overlayRef.current?.draw({
             hand,
             calibration: session.calibration,
             mode: session.mode,
             media: { width: video.videoWidth, height: video.videoHeight },
+            ...(captureRef.current ? { capture: captureRef.current } : {}),
           });
         }
         const seen = hand !== null;
@@ -128,6 +229,7 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
       },
       onError: () => {
         sessionRef.current = null;
+        endCapture();
         overlayRef.current?.clear();
         setState({ status: 'error', error: 'tracker' });
       },
@@ -142,13 +244,22 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
       if (result.error !== 'aborted') setState({ status: 'error', error: result.error });
       return;
     }
-    sessionRef.current = result.session;
-    result.session.start(() => undefined);
-    setState({ status: 'ready', delegate: result.session.delegate });
+    const session = result.session;
+    sessionRef.current = session;
+    applyOrientation(session, orientationOf(video.videoWidth, video.videoHeight));
+    // Mientras se calibra, los gestos no mueven cuentas.
+    session.start((move) => {
+      const current = practiceRef.current;
+      if (captureRef.current || !current.canApply(move)) return;
+      setPracticeSoroban(current.apply(move));
+      audio.play('bead');
+    });
+    setState({ status: 'ready', delegate: session.delegate });
   };
 
   const turnOff = () => {
     release();
+    setCalibrating(null);
     setState({ status: 'idle' });
   };
 
@@ -197,19 +308,65 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
         </p>
       )}
 
-      {state.status === 'ready' && (
+      {state.status === 'ready' && calibrating && (
+        <section aria-label="Calibración">
+          <p role="status" className="camera__status">
+            {CAPTURE_TEXT[calibrating.step]}
+          </p>
+          {calibrating.issue && <p className="camera__issue">{ISSUE_TEXT[calibrating.issue]}</p>}
+          {!handSeen && <p className="muted">Acercá una mano a la cámara.</p>}
+          <div className="camera__actions">
+            {calibrating.canCancel && (
+              <button type="button" className="ghost" onClick={endCapture}>
+                Cancelar
+              </button>
+            )}
+            <button type="button" className="ghost" onClick={turnOff}>
+              Apagar cámara
+            </button>
+          </div>
+        </section>
+      )}
+
+      {state.status === 'ready' && !calibrating && (
         <section aria-label="Cámara activa">
           <p role="status" className={`camera__status${handSeen ? ' camera__status--ok' : ''}`}>
             {handSeen ? '✓ Veo tu mano' : 'Acercá una mano a la cámara'}
           </p>
+          <p>
+            Probá mover las cuentas en el aire: empujalas con el pulgar o el índice, con un
+            movimiento corto y decidido.
+          </p>
+          <div className="camera__practice">
+            <SorobanSvg soroban={practice} readOnly showValue />
+          </div>
           <p className="muted">
             Usando la {state.delegate}
-            {compat ? ' (modo compatibilidad)' : ''}. La calibración y el juego con gestos llegan en
-            las próximas versiones.
+            {compat ? ' (modo compatibilidad)' : ''}.
           </p>
-          <button type="button" className="ghost" onClick={turnOff}>
-            Apagar cámara
-          </button>
+          <div className="camera__actions">
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => {
+                setPracticeSoroban(practiceRef.current.clear());
+              }}
+            >
+              Poner en cero
+            </button>
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => {
+                beginCapture(true);
+              }}
+            >
+              Recalibrar
+            </button>
+            <button type="button" className="ghost" onClick={turnOff}>
+              Apagar cámara
+            </button>
+          </div>
         </section>
       )}
 

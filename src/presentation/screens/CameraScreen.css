@@ -72,3 +72,12 @@
 .camera__compat small {
   display: block;
 }
+
+.camera__issue {
+  color: var(--error);
+}
+
+.camera__practice {
+  max-width: 480px;
+  margin-block: 12px;
+}

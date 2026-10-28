@@ -167,4 +167,45 @@ describe('drawHandOverlay', () => {
     expect(of('arc')).toHaveLength(1);
     expect(of('fillRect')).toHaveLength(0);
   });
+
+  describe('mientras se calibra', () => {
+    it('no dibuja el recuadro y muestra el progreso alrededor del índice', () => {
+      const { ctx, of } = recordingContext();
+      const h = hand({ 8: { x: 0.3, y: 0.4 } });
+      drawHandOverlay(ctx, BOX, scene({ hand: h, capture: { points: [], progress: 0.5 } }));
+      expect(of('strokeRect')).toHaveLength(0);
+      expect(of('fillRect')).toHaveLength(0);
+      // Solo la mano y el rombo: sin viga todavía.
+      expect(of('moveTo')).toHaveLength(HAND_CONNECTIONS.length + 1);
+      const progress = of('arc').find((c) => c[4] === 16);
+      expect(progress?.slice(2, 4)).toEqual([300, 200]);
+      expect(progress?.[5]).toBeCloseTo(-Math.PI / 2);
+      expect(progress?.[6]).toBeCloseTo(Math.PI / 2);
+    });
+
+    it('dibuja la viga provisoria desde el primer extremo hasta el índice', () => {
+      const { ctx, of } = recordingContext();
+      const h = hand({ 8: { x: 0.6, y: 0.4 } });
+      const capture = { points: [{ x: 0.2, y: 0.4 }], progress: 0 };
+      drawHandOverlay(ctx, BOX, scene({ hand: h, capture }));
+      expect(of('moveTo')[0]).toEqual(['moveTo', 200, 200]);
+      expect(of('lineTo')[0]).toEqual(['lineTo', 600, 200]);
+      expect(of('arc')[0]).toEqual(['arc', 'rgb(255 255 255 / 0.9)', 200, 200, 6, 0, Math.PI * 2]);
+      expect(of('arc').some((c) => c[4] === 16)).toBe(false);
+    });
+
+    it('con los dos extremos marcados la viga va de uno al otro, aunque no haya mano', () => {
+      const { ctx, of } = recordingContext();
+      const capture = {
+        points: [
+          { x: 0.2, y: 0.4 },
+          { x: 0.8, y: 0.5 },
+        ],
+        progress: 0,
+      };
+      drawHandOverlay(ctx, BOX, scene({ capture }));
+      expect(of('lineTo')).toEqual([['lineTo', 800, 250]]);
+      expect(of('arc')).toHaveLength(2);
+    });
+  });
 });

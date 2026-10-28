@@ -3,6 +3,7 @@ import type { Delegate, VisionPhase, VisionStartOptions } from '@/application/po
 import { FakeCamera } from '@/application/testing/fakes';
 import { defaultCalibration } from '@/application/vision';
 import { Soroban } from '@/domain';
+import { CalibrationStore } from './calibrationStore';
 import type { BenchmarkResult, DelegateSample } from './tracker/delegateBenchmark';
 import { DELEGATE_KEY, DelegatePreference } from './tracker/delegatePreference';
 import type { HandTracker } from './tracker/MediaPipeHandTracker';
@@ -31,6 +32,7 @@ function setup(over: Partial<VisionServiceDeps> & { fails?: readonly Delegate[] 
   const service = new VisionService({
     camera,
     preference,
+    calibrations: new CalibrationStore(localStorage),
     load: (delegate) => {
       loads.push(delegate);
       if (over.fails?.includes(delegate)) return Promise.reject(new Error('sin WebGL'));
@@ -223,5 +225,14 @@ describe('VisionService', () => {
     service.setCompatibilityMode(false);
     expect(service.compatibilityMode()).toBe(false);
     expect(preference.load()).toBeNull();
+  });
+
+  it('guarda y lee la calibración de cada orientación', () => {
+    const { service } = setup();
+    const box = { left: 0.2, right: 0.8, beamY: 0.45, beadHeight: 0.04 };
+    expect(service.savedCalibration('portrait')).toBeNull();
+    service.saveCalibration('portrait', box);
+    expect(service.savedCalibration('portrait')).toEqual(box);
+    expect(service.savedCalibration('landscape')).toBeNull();
   });
 });

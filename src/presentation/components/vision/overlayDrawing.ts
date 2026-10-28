@@ -12,12 +12,20 @@ export interface Rect extends Size {
   readonly y: number;
 }
 
+/** La calibración en curso: los extremos ya marcados y cuánto lleva el sostener actual (0..1). */
+export interface CaptureScene {
+  readonly points: readonly Landmark[];
+  readonly progress: number;
+}
+
 /** Lo que se dibuja en un frame. `media` es el tamaño nativo del video (`videoWidth/Height`). */
 export interface OverlayScene {
   readonly hand: TrackedHand | null;
   readonly calibration: Calibration;
   readonly mode: GestureMode;
   readonly media: Size;
+  /** Mientras se calibra, se dibuja la viga que se está marcando en lugar del recuadro. */
+  readonly capture?: CaptureScene;
 }
 
 /** Lo que el dibujo usa de `CanvasRenderingContext2D`; los tests pasan uno que graba. */
@@ -75,6 +83,8 @@ const ZONE_FILL: Readonly<Record<Finger, { rod: string; deck: string }>> = {
 
 const TIP_RADIUS = 8;
 const JOINT_RADIUS = 2.5;
+const PROGRESS_RADIUS = 16;
+const MARK_RADIUS = 6;
 
 /** Dónde queda el video dentro de su caja con `object-fit: contain` (centrado, sin recortar). */
 export function containRect(box: Size, media: Size): Rect {
@@ -92,15 +102,63 @@ function deckBand(cal: Calibration, deck: Deck): readonly [number, number] {
     : [cal.beamY, cal.beamY + EARTH_TRACK * cal.beadHeight];
 }
 
+/** De coordenadas normalizadas del frame a píxeles de la caja. */
+type Project = (p: Landmark) => readonly [number, number];
+
 /**
  * Dibuja un frame: el recuadro del soroban con sus varillas y la viga, la varilla y la sección
  * bajo cada dedo activo, y la mano (conexiones, pulgar como círculo verde e índice como rombo
- * azul). Las coordenadas ya vienen espejadas, así que el canvas no se espeja.
+ * azul). Mientras se calibra, en lugar del recuadro va la viga que se está marcando. Las
+ * coordenadas ya vienen espejadas, así que el canvas no se espeja.
  */
 export function drawHandOverlay(ctx: OverlayContext, box: Size, scene: OverlayScene): void {
-  const { hand, calibration: cal } = scene;
+  const { hand } = scene;
   ctx.clearRect(0, 0, box.width, box.height);
   const frame = containRect(box, scene.media);
+  const point: Project = (p) => [frame.x + p.x * frame.width, frame.y + p.y * frame.height];
+
+  if (scene.capture) drawCapture(ctx, scene.capture, hand, point);
+  else drawSoroban(ctx, scene, frame);
+  if (hand) drawHand(ctx, hand, point);
+}
+
+/** Los extremos marcados, la viga provisoria hasta el índice y el progreso del sostener. */
+function drawCapture(
+  ctx: OverlayContext,
+  capture: CaptureScene,
+  hand: TrackedHand | null,
+  point: Project,
+): void {
+  const tip = hand?.landmarks[TIPS.index];
+  const [first] = capture.points;
+  const end = capture.points[1] ?? tip;
+  if (first && end) {
+    ctx.strokeStyle = COLORS.beam;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(...point(first));
+    ctx.lineTo(...point(end));
+    ctx.stroke();
+  }
+  ctx.fillStyle = COLORS.beam;
+  for (const mark of capture.points) {
+    ctx.beginPath();
+    ctx.arc(...point(mark), MARK_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (tip && capture.progress > 0) {
+    const start = -Math.PI / 2;
+    ctx.strokeStyle = COLORS.index;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(...point(tip), PROGRESS_RADIUS, start, start + capture.progress * Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
+/** El recuadro del soroban con sus varillas y la viga, y la varilla y sección bajo cada dedo. */
+function drawSoroban(ctx: OverlayContext, scene: OverlayScene, frame: Rect): void {
+  const { hand, calibration: cal } = scene;
   const px = (x: number) => frame.x + x * frame.width;
   const py = (y: number) => frame.y + y * frame.height;
   const rodWidth = (cal.right - cal.left) / cal.rodCount;
@@ -143,10 +201,10 @@ export function drawHandOverlay(ctx: OverlayContext, box: Size, scene: OverlaySc
   ctx.moveTo(px(cal.left), py(cal.beamY));
   ctx.lineTo(px(cal.right), py(cal.beamY));
   ctx.stroke();
+}
 
-  if (!hand) return;
-  const point = (p: Landmark) => [px(p.x), py(p.y)] as const;
-
+/** Conexiones, articulaciones, el pulgar (círculo verde) y el índice (rombo azul). */
+function drawHand(ctx: OverlayContext, hand: TrackedHand, point: Project): void {
   ctx.strokeStyle = COLORS.bones;
   ctx.lineWidth = 2;
   ctx.beginPath();

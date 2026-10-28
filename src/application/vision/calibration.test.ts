@@ -6,7 +6,9 @@ import {
   beadUnits,
   deckAt,
   defaultCalibration,
+  orientationOf,
   rodAt,
+  withRods,
 } from './calibration';
 
 const CAL = { left: 0.1, right: 0.8, beamY: 0.4, beadHeight: 0.05, rodCount: 7 };
@@ -49,5 +51,26 @@ describe('rodAt', () => {
 describe('defaultCalibration', () => {
   it('es un recuadro centrado con la cantidad de varillas pedida', () => {
     expect(defaultCalibration(13)).toMatchObject({ rodCount: 13, left: 0.15, right: 0.85 });
+  });
+});
+
+describe('withRods', () => {
+  it('agrega la cantidad de varillas sin arrastrar otros campos', () => {
+    const box = { left: 0.2, right: 0.7, beamY: 0.5, beadHeight: 0.04, extra: 1 };
+    expect(withRods(box, 13)).toEqual({
+      left: 0.2,
+      right: 0.7,
+      beamY: 0.5,
+      beadHeight: 0.04,
+      rodCount: 13,
+    });
+  });
+});
+
+describe('orientationOf', () => {
+  it('es vertical solo si el frame es más alto que ancho', () => {
+    expect(orientationOf(540, 960)).toBe('portrait');
+    expect(orientationOf(960, 540)).toBe('landscape');
+    expect(orientationOf(0, 0)).toBe('landscape');
   });
 });

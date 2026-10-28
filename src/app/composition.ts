@@ -6,7 +6,12 @@ import {
   SorobanDb,
   requestPersistentStorage,
 } from '@/infrastructure/persistence';
-import { BrowserCamera, DelegatePreference, VisionService } from '@/infrastructure/vision';
+import {
+  BrowserCamera,
+  CalibrationStore,
+  DelegatePreference,
+  VisionService,
+} from '@/infrastructure/vision';
 import type { AppServices } from '@/presentation/services';
 import { assembleServices } from './assemble';
 
@@ -22,6 +27,7 @@ function localStorageOrUndefined(): Storage | undefined {
 /** Composition root: las implementaciones reales de cada puerto. */
 export function createAppServices(): AppServices {
   const clock = { now: () => performance.now() };
+  const storage = localStorageOrUndefined();
   void requestPersistentStorage();
   return assembleServices({
     audio: new WebAudioPort(),
@@ -31,7 +37,8 @@ export function createAppServices(): AppServices {
         // En HTTP es undefined aunque los tipos del DOM digan lo contrario.
         mediaDevices: navigator.mediaDevices,
       }),
-      preference: new DelegatePreference(localStorageOrUndefined()),
+      preference: new DelegatePreference(storage),
+      calibrations: new CalibrationStore(storage),
     }),
     progress: new DexieProgressRepo(new SorobanDb()),
     clock,

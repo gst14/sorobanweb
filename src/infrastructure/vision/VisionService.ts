@@ -1,4 +1,6 @@
 import type {
+  CalibrationBox,
+  CameraOrientation,
   CameraPort,
   CameraSession,
   Delegate,
@@ -8,6 +10,7 @@ import type {
   VisionStartOptions,
 } from '@/application/ports';
 import { defaultCalibration } from '@/application/vision';
+import type { CalibrationStore } from './calibrationStore';
 import {
   type BenchmarkResult,
   type MeasureOptions,
@@ -26,6 +29,7 @@ import {
 export interface VisionServiceDeps {
   readonly camera: CameraPort;
   readonly preference: DelegatePreference;
+  readonly calibrations: CalibrationStore;
   /** Carga el tracker con un delegado; por defecto, MediaPipe del mismo origen. */
   readonly load?: (delegate: Delegate) => Promise<HandTracker>;
   /** Mide los dos delegados; por defecto, `benchmarkDelegates`. */
@@ -85,6 +89,14 @@ export class VisionService implements VisionPort {
 
   setCompatibilityMode(on: boolean): void {
     this.deps.preference.force(on ? 'CPU' : null);
+  }
+
+  savedCalibration(orientation: CameraOrientation): CalibrationBox | null {
+    return this.deps.calibrations.load(orientation);
+  }
+
+  saveCalibration(orientation: CameraOrientation, box: CalibrationBox): void {
+    this.deps.calibrations.save(orientation, box);
   }
 
   /**
