@@ -8,6 +8,8 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 /** Versión fijada de @mediapipe/tasks-vision; nombra la caché runtime para invalidarla al subirla. */
 const MEDIAPIPE_VERSION = '0.10.35';
+/** Nombre del chunk que Rollup genera para el import() dinámico de @mediapipe/tasks-vision. */
+const MEDIAPIPE_CHUNK = 'vision_bundle';
 
 export default defineConfig(({ mode }) => ({
   base: '/',
@@ -42,14 +44,17 @@ export default defineConfig(({ mode }) => ({
         background_color: '#f5efe6',
       },
       workbox: {
-        // El WASM (~11 MB por variante) y el modelo (~7,8 MB) no se precachean:
-        // superan el límite de 2 MiB y quien usa solo el modo táctil nunca los descarga.
+        // El WASM (~11 MB por variante), el modelo (~7,8 MB) y el chunk JS de MediaPipe no se
+        // precachean: los dos primeros superan el límite de 2 MiB, y quien usa solo el modo
+        // táctil nunca descarga ninguno de los tres.
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,ogg,mp3}'],
-        globIgnores: ['mediapipe/**', 'models/**'],
+        globIgnores: ['mediapipe/**', 'models/**', `assets/${MEDIAPIPE_CHUNK}-*.js`],
         navigateFallback: 'index.html',
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => /\/(mediapipe|models)\//.test(url.pathname),
+            // Workbox serializa esta función dentro de sw.js: no puede usar constantes de acá.
+            urlPattern: ({ url }) =>
+              /\/(mediapipe|models)\/|\/assets\/vision_bundle-/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
               cacheName: `mediapipe-${MEDIAPIPE_VERSION}`,
