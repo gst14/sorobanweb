@@ -90,6 +90,7 @@ export default defineConfig(({ mode }) => ({
         'src/**/*.test.{ts,tsx}',
         'src/**/*.fixtures.ts',
         'src/test/**',
+        'src/**/testing/**',
         'src/main.tsx',
         'src/**/*.d.ts',
       ],
