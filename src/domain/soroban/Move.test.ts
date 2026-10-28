@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expectedFinger, isEarthDelta, moveValue, toEarthDelta } from './Move';
+import { expectedFinger, isEarthDelta, moveValue, toEarthDelta, toMove } from './Move';
 
 describe('Move', () => {
   describe('expectedFinger', () => {
@@ -34,6 +34,18 @@ describe('Move', () => {
     it.each([0, 5, -5, 1.5])('%d es inválido', (n) => {
       expect(isEarthDelta(n)).toBe(false);
       expect(() => toEarthDelta(n)).toThrow(RangeError);
+    });
+  });
+});
+
+describe('toMove', () => {
+  it('agrega varilla, dedo e instante conservando deck y delta', () => {
+    expect(toMove({ deck: 'heaven', delta: -1 }, 2, 'index', 1234)).toEqual({
+      deck: 'heaven',
+      delta: -1,
+      rod: 2,
+      finger: 'index',
+      at: 1234,
     });
   });
 });

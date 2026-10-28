@@ -42,3 +42,14 @@ export const moveValue = (m: Pick<Move, 'deck' | 'delta'>): number =>
 /** Dedo correcto según la técnica tradicional: el pulgar solo sube cuentas de tierra. */
 export const expectedFinger = (m: Pick<Move, 'deck' | 'delta'>): Finger =>
   m.deck === 'earth' && m.delta > 0 ? 'thumb' : 'index';
+
+/** Un movimiento sin contexto (varilla, dedo, tiempo): solo qué cuentas y cuánto. */
+export type MoveDelta = Pick<EarthMove, 'deck' | 'delta'> | Pick<HeavenMove, 'deck' | 'delta'>;
+
+/** Completa un MoveDelta con la varilla, el dedo y el instante. */
+export const toMove = (delta: MoveDelta, rod: number, finger: Finger, at: number): Move => ({
+  ...delta,
+  rod,
+  finger,
+  at,
+});
