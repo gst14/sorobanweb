@@ -11,7 +11,8 @@ Entorno verificado: Node 24.19.0, npm 11.17.0, Windows 11 (sin pnpm). Las versio
 ## Estado (2026-10-27)
 
 - **Fase 0:** completa.
-- **Fase 1:** tareas 1.1 a 1.24 completas. Queda la **1.25**: el deploy en Vercel y la checklist manual en un iPhone y un Android reales.
+- **Fase 1:** tareas 1.1 a 1.24 completas. CI en verde y deploy vivo en `https://sorobanweb.vercel.app`. De la **1.25** queda la checklist manual en un iPhone y un Android reales.
+- **Fase 2:** desglose fino escrito (más abajo). Bloque A (2.1–2.8), 2.9 y 2.10 completos; sigue la 2.11. `CameraPort` quedó en `application/ports` con un `VideoSink` estructural.
 - **Desvíos respecto del plan:**
   - El template de create-vite 9 trae oxlint; se reemplazó por ESLint.
   - `vite-plugin-static-copy` 4 necesita `rename: { stripBase: true }`.
