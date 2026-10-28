@@ -6,6 +6,7 @@ import {
   SorobanDb,
   requestPersistentStorage,
 } from '@/infrastructure/persistence';
+import { BrowserCamera } from '@/infrastructure/vision';
 import type { AppServices } from '@/presentation/services';
 import { assembleServices } from './assemble';
 
@@ -15,6 +16,11 @@ export function createAppServices(): AppServices {
   void requestPersistentStorage();
   return assembleServices({
     audio: new WebAudioPort(),
+    camera: new BrowserCamera({
+      isSecureContext: window.isSecureContext,
+      // En HTTP es undefined aunque los tipos del DOM digan lo contrario.
+      mediaDevices: navigator.mediaDevices,
+    }),
     progress: new DexieProgressRepo(new SorobanDb()),
     clock,
     rng: (seed) => createRng(seed ?? Math.floor(Math.random() * 2 ** 32)),

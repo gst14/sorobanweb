@@ -1,5 +1,6 @@
 import { createRng } from '@/domain';
 import type { AudioCue, AudioPort } from '../ports/AudioPort';
+import type { CameraPort, CameraResult } from '../ports/CameraPort';
 import type { Clock } from '../ports/Clock';
 import type { AttemptRecord, LessonResultRecord, ProgressRepo } from '../ports/ProgressRepo';
 import type { RngFactory } from '../ports/RngFactory';
@@ -50,3 +51,23 @@ export class InMemoryProgressRepo implements ProgressRepo {
 }
 
 export const seededRng: RngFactory = (seed = 1) => createRng(seed);
+
+/** Cámara que devuelve un resultado fijo y cuenta las aperturas. */
+export class FakeCamera implements CameraPort {
+  opens = 0;
+  stops = 0;
+  result: CameraResult = {
+    ok: true,
+    session: {
+      width: 960,
+      height: 540,
+      stop: () => {
+        this.stops++;
+      },
+    },
+  };
+  open(): Promise<CameraResult> {
+    this.opens++;
+    return Promise.resolve(this.result);
+  }
+}
