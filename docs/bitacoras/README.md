@@ -11,7 +11,7 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 | Sesión | Fecha | Resumen |
 |---|---|---|
 | [01](2026-10-27-sesion-01.md) | 2026-10-27 | Plan aprobado; fase 0 completa; fase 1 completa en código (falta el QA en dispositivos) |
-| [02](2026-10-27-sesion-02.md) | 2026-10-27 | CI y deploy confirmados; desglose de la fase 2; bloque A de gestos completo y script del modelo |
+| [02](2026-10-27-sesion-02.md) | 2026-10-27 | CI y deploy confirmados; desglose de la fase 2; bloque A de gestos, script del modelo y puerto de cámara (2.1–2.10) |
 
 ## Estado actual
 
@@ -37,11 +37,10 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 **Fase 2 · Gestos**
 - [x] Desglose fino en [PLAN.md](../PLAN.md#fase-2--gestos-detalle).
 - [x] Bloque A (2.1–2.8): landmarks, One Euro, pinch, calibración, `RodMapper`, `Pusher`, `PinchPointer` y `GestureEngine`, con 100 % de cobertura.
-- [x] 2.9: `scripts/fetch-model.mjs` con SHA-256, en `predev` y `prebuild`.
+- [x] 2.9: `scripts/fetch-model.mjs` con SHA-256, en `predev` y `prebuild`; Vercel sirve el modelo.
+- [x] 2.10: `CameraPort` (en `application/ports`, sin DOM) y `BrowserCamera` con errores tipados.
 
 ### Pendiente
-
-**Sin pushear:** los commits de la sesión 02 están solo en local.
 
 **Fase 1 · cierre (tarea 1.25)**
 - [ ] Checklist manual en un iPhone y un Android reales (ver [PLAN.md](../PLAN.md#estrategia-de-pruebas)). Lo prioritario: instalar, jugar en modo avión, oír el audio en iOS después de "Empezar" y rotar en medio de una lección.
@@ -50,7 +49,7 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 **Mejoras chicas detectadas (opcionales)**
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
-**Fase 2 · Gestos**: bloques B a D, desde la 2.10 (cámara, tracker, bucle, delegado, pantallas, calibración y medición).
+**Fase 2 · Gestos**: bloques B a D, desde la 2.11 (tracker, bucle, delegado, pantallas, calibración y medición).
 
 **Fase 3 · Gamificación**: no iniciada.
 
