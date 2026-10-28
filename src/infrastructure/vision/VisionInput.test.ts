@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { type Move, Soroban } from '@/domain';
+import type { FrameTrace } from '@/application/ports';
 import type { HandFrame } from '@/application/vision';
 import { hand } from '@/application/vision/testing/hands';
 import { CAL, stroke } from './gesture/testing/strokes';
@@ -197,6 +198,52 @@ describe('VisionInput', () => {
     expect(input.mode).toBe('pinch');
     expect(input.calibration.rodCount).toBe(13);
     expect(camera.stops).toBe(0);
+  });
+
+  it('con un listener de trace, cada frame sale con la mano, el soroban y los movimientos', () => {
+    const { input, tracker, onMove, step } = setup();
+    const traces: FrameTrace[] = [];
+    const samples = stroke(CAL, { rod: 0, from: 1.5, to: 0.5 });
+    tracker.queue = samples.map((s) => hand({ thumb: { x: s.x, y: s.y }, index: { x: 0, y: 0 } }));
+    input.setTraceListener((trace) => traces.push(trace));
+    input.start(onMove);
+    for (const s of samples) step(s.t + 1);
+    expect(traces).toHaveLength(samples.length);
+    expect(traces[0]?.engine).toEqual({ mode: 'push', calibration: CAL });
+    expect(traces.slice(1).every((trace) => !trace.engine)).toBe(true);
+    const withMove = traces.findIndex((trace) => trace.moves.length > 0);
+    expect(traces[withMove]?.soroban.toNumber()).toBe(0);
+    expect(traces[withMove + 1]?.soroban.toNumber()).toBe(1);
+    expect(traces[0]?.hand?.score).toBe(0.9);
+  });
+
+  it('el trace avisa cuando el motor cambia de modo, y deja de salir sin listener', () => {
+    const { input, onMove, step } = setup();
+    const traces: FrameTrace[] = [];
+    input.setTraceListener((trace) => traces.push(trace));
+    input.start(onMove);
+    step(100);
+    step(133);
+    input.setMode('pinch');
+    step(166);
+    input.setTraceListener(null);
+    step(200);
+    expect(traces.map((trace) => trace.engine?.mode)).toEqual(['push', undefined, 'pinch']);
+  });
+
+  it('empezar a escuchar reinicia el motor, así la grabación arranca sin trazos a medias', () => {
+    const { input, tracker, onMove, step, moves } = setup();
+    const samples = stroke(CAL, { rod: 0, from: 1.5, to: 0.5 });
+    tracker.queue = samples.map((s) => hand({ thumb: { x: s.x, y: s.y }, index: { x: 0, y: 0 } }));
+    input.start(onMove);
+    // El trazo empieza, y a mitad del movimiento se empieza a grabar: el motor nuevo no ve el
+    // punto de partida y no alcanza a reconocer el trazo.
+    const startY = samples[0]?.y ?? 0;
+    const middle = samples.findIndex((s) => s.y < startY);
+    for (const s of samples.slice(0, middle + 1)) step(s.t + 1);
+    input.setTraceListener(() => undefined);
+    for (const s of samples.slice(middle + 1)) step(s.t + 1);
+    expect(moves).toEqual([]);
   });
 
   it('usa requestAnimationFrame si no se inyecta un scheduler', () => {

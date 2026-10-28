@@ -11,6 +11,7 @@ import type {
   CameraOrientation,
   Delegate,
   GestureMode,
+  TraceListener,
   TrackedHand,
   VisionError,
   VisionPhase,
@@ -95,6 +96,7 @@ export class FakeVisionSession implements VisionSession {
   mode: GestureMode;
   calibration: Calibration;
   onMove: MoveListener | null = null;
+  traceListener: TraceListener | null = null;
   stopped = false;
   private readonly options: VisionStartOptions;
 
@@ -116,6 +118,9 @@ export class FakeVisionSession implements VisionSession {
   }
   setCalibration(calibration: Calibration): void {
     this.calibration = calibration;
+  }
+  setTraceListener(listener: TraceListener | null): void {
+    this.traceListener = listener;
   }
   /** Simula un movimiento reconocido por el motor de gestos. */
   emit(move: Move): void {

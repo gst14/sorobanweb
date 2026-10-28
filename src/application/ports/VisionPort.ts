@@ -1,4 +1,4 @@
-import type { Soroban } from '@/domain';
+import type { Move, Soroban } from '@/domain';
 import type { CameraError } from './CameraPort';
 import type { InputSource } from './InputSource';
 
@@ -76,6 +76,22 @@ export interface VisionStartOptions {
   readonly signal?: AbortSignal;
 }
 
+/**
+ * Lo que vio y decidió el motor de gestos en un frame: alcanza para reproducirlo sin cámara.
+ * Lo usa el grabador de sesiones de desarrollo.
+ */
+export interface FrameTrace {
+  readonly t: number;
+  readonly hand: TrackedHand | null;
+  /** El soroban que recibió el motor, antes de aplicar los movimientos de este frame. */
+  readonly soroban: Soroban;
+  /** Presente cuando el motor se creó de nuevo antes de este frame (modo o calibración). */
+  readonly engine?: { readonly mode: GestureMode; readonly calibration: Calibration };
+  readonly moves: readonly Move[];
+}
+
+export type TraceListener = (trace: FrameTrace) => void;
+
 /** Entrada por cámara ya abierta. `stop()` apaga la cámara y libera el tracker. */
 export interface VisionSession extends InputSource {
   readonly kind: 'vision';
@@ -85,6 +101,8 @@ export interface VisionSession extends InputSource {
   readonly calibration: Calibration;
   setMode(mode: GestureMode): void;
   setCalibration(calibration: Calibration): void;
+  /** Escucha cada frame procesado (null deja de escuchar). El primero trae `engine`. */
+  setTraceListener(listener: TraceListener | null): void;
 }
 
 export type VisionResult =

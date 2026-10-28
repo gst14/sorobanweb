@@ -80,3 +80,20 @@
 .quality__suggestion p {
   margin: 0;
 }
+
+/* Grabador de gestos: solo aparece en desarrollo. */
+.recorder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px dashed currentcolor;
+  border-radius: 8px;
+}
+
+.recorder input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font: inherit;
+}

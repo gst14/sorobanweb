@@ -1,4 +1,10 @@
-import type { CameraSession, Delegate, MoveListener, VisionSession } from '@/application/ports';
+import type {
+  CameraSession,
+  Delegate,
+  MoveListener,
+  TraceListener,
+  VisionSession,
+} from '@/application/ports';
 import type { Soroban } from '@/domain';
 import type { Calibration } from './gesture/calibration';
 import {
@@ -54,6 +60,9 @@ export class VisionInput implements VisionSession {
   private engine: GestureEngine;
   private currentCalibration: Calibration;
   private onMove: MoveListener | null = null;
+  private onTrace: TraceListener | null = null;
+  /** El motor se creó y todavía no salió en un trace. */
+  private engineChanged = true;
   private frameId: number | null = null;
   private lastVideoTime = -1;
   private stopped = false;
@@ -103,7 +112,15 @@ export class VisionInput implements VisionSession {
     this.engine = this.createEngine(this.engine.mode);
   }
 
+  setTraceListener(listener: TraceListener | null): void {
+    this.onTrace = listener;
+    // Un motor nuevo, sin trazos a medias: así una grabación se reproduce igual desde el
+    // primer frame. Suelta lo que estuviera agarrado, algo aceptable al empezar a grabar.
+    if (listener) this.engine = this.createEngine(this.engine.mode);
+  }
+
   private createEngine(mode: GestureMode): GestureEngine {
+    this.engineChanged = true;
     return new GestureEngine({
       ...this.options.tuning,
       mode,
@@ -125,7 +142,15 @@ export class VisionInput implements VisionSession {
       this.options.onError?.(error);
       return;
     }
-    for (const move of this.engine.update(hand, t, this.options.getSoroban())) this.onMove?.(move);
+    const soroban = this.options.getSoroban();
+    const moves = this.engine.update(hand, t, soroban);
+    for (const move of moves) this.onMove?.(move);
+    if (this.onTrace) {
+      const { mode, calibration } = this;
+      const engine = this.engineChanged ? { engine: { mode, calibration } } : {};
+      this.engineChanged = false;
+      this.onTrace({ t, hand, soroban, moves, ...engine });
+    }
     this.options.onFrame?.(hand, t);
   };
 }

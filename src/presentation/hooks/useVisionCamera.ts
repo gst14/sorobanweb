@@ -3,6 +3,7 @@ import type {
   CameraOrientation,
   Delegate,
   GestureMode,
+  TraceListener,
   VisionError,
   VisionPhase,
   VisionSession,
@@ -63,6 +64,8 @@ export interface VisionCamera {
   readonly turnOff: () => void;
   readonly recalibrate: () => void;
   readonly cancelCalibration: () => void;
+  /** Escucha cada frame de la sesión abierta (null deja de escuchar). Para el grabador. */
+  readonly setTraceListener: (listener: TraceListener | null) => void;
 }
 
 /**
@@ -262,5 +265,8 @@ export function useVisionCamera({
       beginCapture(true);
     },
     cancelCalibration: endCapture,
+    setTraceListener: (listener) => {
+      sessionRef.current?.setTraceListener(listener);
+    },
   };
 }

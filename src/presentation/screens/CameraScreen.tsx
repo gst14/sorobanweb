@@ -9,6 +9,7 @@ import {
   CameraView,
   QualityIndicator,
 } from '../components/vision/CameraParts';
+import { SessionRecorderControls } from '../components/vision/SessionRecorderControls';
 import { useVisionCamera } from '../hooks/useVisionCamera';
 import { useServices, useSettings } from '../services';
 import './CameraScreen.css';
@@ -136,6 +137,9 @@ export function CameraScreen({ onExit }: { onExit: () => void }) {
             </button>
             {turnOffButton}
           </div>
+          {import.meta.env.DEV && (
+            <SessionRecorderControls setTraceListener={camera.setTraceListener} />
+          )}
         </section>
       )}
 

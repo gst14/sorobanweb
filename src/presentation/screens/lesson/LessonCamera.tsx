@@ -7,6 +7,7 @@ import {
   CameraView,
   QualityIndicator,
 } from '../../components/vision/CameraParts';
+import { SessionRecorderControls } from '../../components/vision/SessionRecorderControls';
 import { useVisionCamera } from '../../hooks/useVisionCamera';
 import { useServices, useSettings } from '../../services';
 
@@ -77,6 +78,9 @@ export function LessonCamera({ mode, rodCount }: LessonCameraProps) {
             </button>
             {turnOffButton}
           </div>
+          {import.meta.env.DEV && (
+            <SessionRecorderControls setTraceListener={camera.setTraceListener} />
+          )}
         </div>
       )}
 

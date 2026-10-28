@@ -188,6 +188,15 @@ describe('CameraScreen', () => {
     expect(second.stopped).toBe(true);
   });
 
+  it('en desarrollo, Grabar escucha los frames de la sesión y Detener deja de escuchar', async () => {
+    const { services, user } = renderCamera();
+    await user.click(screen.getByRole('button', { name: 'Activar cámara' }));
+    await user.click(screen.getByRole('button', { name: 'Grabar' }));
+    expect(lastSession(services).traceListener).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Detener y descargar' }));
+    expect(lastSession(services).traceListener).toBeNull();
+  });
+
   it('salir mientras arranca cancela el arranque', async () => {
     const { services, view, user } = renderCamera();
     services.fakeVision.hold();
