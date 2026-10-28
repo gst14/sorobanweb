@@ -60,7 +60,7 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
 **Fase 2 · Gestos**
-- [ ] Push de los 8 commits de las sesiones 04, 05 y 06.
+- [ ] Push de los commits de las sesiones 04, 05 y 06.
 - [ ] Probar la pantalla de cámara con una cámara y una mano reales (desktop y teléfono): overlay, calibración y soroban de práctica.
 - [ ] 2.17: selector de modo e indicador de calidad. Con ella, la cámara entra a la lección.
 - [ ] Bloque D (2.18–2.19): grabador de sesiones y medición en dispositivos.
