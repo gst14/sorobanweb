@@ -205,3 +205,48 @@
   justify-items: start;
   gap: 8px;
 }
+
+/*
+ * Pantalla ancha con cámara: el video y sus controles a la izquierda, el ejercicio a la
+ * derecha, todo dentro del alto de la ventana. El mobile horizontal (alto ≤ 600 px) sigue
+ * con su propio layout.
+ */
+@media (min-width: 900px) and (min-height: 601px) {
+  .screen.screen--lesson-camera {
+    max-width: 1400px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      'header header'
+      'camera exercise'
+      'mode exercise';
+    align-items: start;
+    column-gap: 24px;
+  }
+
+  .screen--lesson-camera > .lesson-header {
+    grid-area: header;
+  }
+
+  .screen--lesson-camera > .lesson-camera {
+    grid-area: camera;
+  }
+
+  .screen--lesson-camera > .exercise {
+    grid-area: exercise;
+  }
+
+  .screen--lesson-camera > .input-mode {
+    grid-area: mode;
+  }
+
+  /* Header, controles de la cámara y selector: unos 340 px; el resto es video. */
+  .screen--lesson-camera .lesson-camera .camera__video {
+    max-height: calc(100dvh - 340px);
+  }
+
+  /* Header, enunciado y botones: unos 310 px; el resto es soroban. */
+  .screen--lesson-camera .exercise__board .soroban {
+    max-height: calc(100dvh - 310px);
+  }
+}

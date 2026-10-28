@@ -48,9 +48,11 @@ export function LessonScreen({ lessonId, onExit }: LessonScreenProps) {
   }, [rodCount, store]);
 
   if (session?.lesson.id !== lessonId) return null;
+  // Con la cámara en pantalla ancha, el video va a la izquierda y el ejercicio a la derecha.
+  const withCamera = inputMode !== 'touch' && session.status !== 'finished';
 
   return (
-    <main className="screen screen--lesson">
+    <main className={`screen screen--lesson${withCamera ? ' screen--lesson-camera' : ''}`}>
       <LessonHeader session={session} onExit={onExit} />
       {session.status === 'finished' ? (
         <LessonResult
