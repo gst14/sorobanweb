@@ -18,10 +18,11 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 | [06](2026-10-28-sesion-06.md) | 2026-10-28 | Calibración de 10 s guardada por orientación (2.16) y soroban de práctica movido con gestos |
 | [07](2026-10-28-sesion-07.md) | 2026-10-28 | Selector de modo e indicador de calidad (2.17); la cámara entra a la lección |
 | [08](2026-10-28-sesion-08.md) | 2026-10-28 | Grabador de sesiones en dev y replay de grabaciones como tests (2.18) |
+| [09](2026-10-29-sesion-09.md) | 2026-10-29 | Lección con cámara sin scroll en el teléfono, en vertical y en horizontal |
 
 ## Estado actual
 
-Última actualización: 2026-10-28, sesión 08.
+Última actualización: 2026-10-29, sesión 09.
 
 ### Hecho
 
@@ -53,6 +54,7 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [x] 2.16: calibración con el índice en los dos extremos de la viga; el alto de cuenta sale del tamaño de la mano. Se guarda por orientación de la imagen y, al rotar, se pide solo si falta. Ya calibrado, un soroban de práctica se mueve con los gestos. Falta probarla con una mano real.
 - [x] 2.17: selector de modo (táctil, empuje, puntero) persistido, e indicador de calidad según FPS y confianza que, con 3 s en rojo, sugiere táctil. Con empuje o puntero, la lección usa 7 varillas y la cámara mueve el soroban del ejercicio. Falta probarlo con una mano real.
 - [x] 2.18 (código): grabador de sesiones solo en desarrollo (panel «Grabar» en la lección y en la pantalla de cámara) y replay de cada `gesture/recordings/*.json` como test de regresión. Falta la primera grabación con una mano real.
+- [x] Lección con cámara sin scroll en el teléfono: en vertical el soroban toma el alto que sobra; en horizontal, tres columnas (cámara, soroban, enunciado). Verificado en Chromium de 360×640 a 915×412. Falta verlo en un teléfono real.
 
 ### Pendiente
 
@@ -64,10 +66,9 @@ Registro de cada sesión de trabajo: qué se hizo, qué quedó pendiente y qué 
 - [ ] `npm audit` reporta 4 vulnerabilidades *low* en `deepmerge`, que llega vía `workbox-build` y solo se usa al compilar. Revisar cuando salga una versión nueva de vite-plugin-pwa.
 
 **Fase 2 · Gestos**
-- [ ] Push del commit de la sesión 08.
+- [ ] Push de los commits de la sesión 09.
 - [ ] Probar con una cámara y una mano reales (desktop y teléfono): overlay, calibración, soroban de práctica y una lección en modo empuje y en modo puntero; revisar los umbrales del indicador de calidad.
 - [ ] Grabar con una mano real y sumar las grabaciones a `src/infrastructure/vision/gesture/recordings/`.
-- [ ] Layout con cámara en el teléfono: en vertical y en horizontal todavía hay que hacer scroll.
 - [ ] 2.19: medición en dispositivos.
 
 **Fase 3 · Gamificación**: no iniciada.
