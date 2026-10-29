@@ -181,6 +181,12 @@
   }
 }
 
+.lesson-controls {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
 .lesson-camera {
   display: grid;
   gap: 8px;
@@ -207,19 +213,173 @@
 }
 
 /*
- * Pantalla ancha con cámara: el video y sus controles a la izquierda, el ejercicio a la
- * derecha, todo dentro del alto de la ventana. El mobile horizontal (alto ≤ 600 px) sigue
- * con su propio layout.
+ * Teléfono con cámara (todo lo que no es pantalla ancha): la lección entra justo en el alto de
+ * la ventana. El video se achica y el soroban se queda con el alto que sobra.
+ */
+@media not all and (min-width: 900px) and (min-height: 601px) {
+  .screen.screen--lesson-camera {
+    height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .screen--lesson-camera .lesson-controls {
+    gap: 8px;
+  }
+
+  /* En pantallas bajas el video cede primero: el resto de la lección ocupa unos 540 px. */
+  .screen--lesson-camera .lesson-camera .camera__video {
+    max-height: clamp(110px, 100svh - 540px, 24svh);
+  }
+
+  /* Feedback en una fila (título y botón), para que el soroban no se achique de más. */
+  .screen--lesson-camera .feedback {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    column-gap: 16px;
+    padding: 8px;
+  }
+
+  /* Aviso, calidad y botones en filas que se acomodan solas, no uno debajo del otro. */
+  .screen--lesson-camera .lesson-camera__ready {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 12px;
+  }
+
+  .screen--lesson-camera .input-mode legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .screen--lesson-camera .exercise {
+    grid-template-rows: auto minmax(140px, 1fr);
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .screen--lesson-camera .exercise__expression {
+    font-size: 1.6rem;
+  }
+
+  .screen--lesson-camera .exercise__board {
+    display: grid;
+    min-height: 0;
+  }
+
+  .screen--lesson-camera .exercise__board .soroban {
+    height: 100%;
+    max-height: none;
+  }
+
+  /* Leer con la cámara prendida: el teclado al lado del soroban y más bajo. */
+  .screen--lesson-camera .exercise--read {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: center;
+  }
+
+  .screen--lesson-camera .exercise--read > :not(.exercise__board, .keypad) {
+    grid-column: 1 / -1;
+  }
+
+  .screen--lesson-camera .keypad {
+    gap: 6px;
+  }
+
+  .screen--lesson-camera .keypad__display {
+    padding: 2px 12px;
+    font-size: 1.5rem;
+  }
+
+  .screen--lesson-camera .keypad__grid {
+    gap: 6px;
+  }
+
+  .screen--lesson-camera .keypad__grid button {
+    min-height: 44px;
+  }
+}
+
+/*
+ * Teléfono horizontal con cámara: tres columnas. La cámara y el selector a la izquierda (con
+ * scroll propio si no entran), el soroban al medio y el header, el enunciado y los botones a
+ * la derecha.
+ */
+@media (orientation: landscape) and (max-height: 600px) {
+  .screen.screen--lesson-camera {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) clamp(150px, 18vw, 240px);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    align-content: stretch;
+    column-gap: 12px;
+  }
+
+  .screen--lesson-camera > .lesson-header,
+  .screen--lesson-camera .exercise > * {
+    grid-column: 3;
+  }
+
+  .screen--lesson-camera > .lesson-controls {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-content: start;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .screen--lesson-camera .lesson-camera .camera__video {
+    max-height: 55svh;
+  }
+
+  .screen--lesson-camera .exercise__board {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+  }
+
+  .screen--lesson-camera .exercise--read > :not(.exercise__board) {
+    grid-column: 3;
+  }
+
+  .screen--lesson-camera .keypad__grid button {
+    min-height: 40px;
+  }
+
+  .screen--lesson-camera .exercise__board .soroban {
+    height: auto;
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  /* En la columna de la cámara los tres modos sí entran en una fila. */
+  .screen--lesson-camera .input-mode__options {
+    flex-direction: row;
+  }
+
+  .screen--lesson-camera .input-mode__options label + label {
+    border-top: none;
+    border-left: 1px solid var(--frame-bg);
+  }
+}
+
+/*
+ * Pantalla ancha con cámara: el video, sus controles y el selector a la izquierda, el
+ * ejercicio a la derecha, todo dentro del alto de la ventana. El mobile horizontal (alto
+ * ≤ 600 px) sigue con su propio layout.
  */
 @media (min-width: 900px) and (min-height: 601px) {
   .screen.screen--lesson-camera {
     max-width: 1400px;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto 1fr;
     grid-template-areas:
       'header header'
-      'camera exercise'
-      'mode exercise';
+      'controls exercise';
     align-items: start;
     column-gap: 24px;
   }
@@ -228,16 +388,12 @@
     grid-area: header;
   }
 
-  .screen--lesson-camera > .lesson-camera {
-    grid-area: camera;
+  .screen--lesson-camera > .lesson-controls {
+    grid-area: controls;
   }
 
   .screen--lesson-camera > .exercise {
     grid-area: exercise;
-  }
-
-  .screen--lesson-camera > .input-mode {
-    grid-area: mode;
   }
 
   /* Header, controles de la cámara y selector: unos 340 px; el resto es video. */

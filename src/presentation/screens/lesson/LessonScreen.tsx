@@ -49,7 +49,17 @@ export function LessonScreen({ lessonId, onExit }: LessonScreenProps) {
 
   if (session?.lesson.id !== lessonId) return null;
   // Con la cámara en pantalla ancha, el video va a la izquierda y el ejercicio a la derecha.
-  const withCamera = inputMode !== 'touch' && session.status !== 'finished';
+  const cameraMode = inputMode !== 'touch' && session.status !== 'finished' ? inputMode : null;
+  const withCamera = cameraMode !== null;
+  const modeSelector = (
+    <InputModeSelector
+      legend="Mover las cuentas"
+      value={inputMode}
+      onChange={(mode) => {
+        setSettings({ inputMode: mode });
+      }}
+    />
+  );
 
   return (
     <main className={`screen screen--lesson${withCamera ? ' screen--lesson-camera' : ''}`}>
@@ -64,16 +74,16 @@ export function LessonScreen({ lessonId, onExit }: LessonScreenProps) {
         />
       ) : (
         <>
-          {/* Al terminar la lección la cámara se apaga: se desmonta con el resultado. */}
-          {inputMode !== 'touch' && <LessonCamera mode={inputMode} rodCount={rodCount} />}
+          {/* Con la cámara, el video y el selector de modo van juntos en una columna. */}
+          {cameraMode !== null && (
+            <div className="lesson-controls">
+              {/* Al terminar la lección la cámara se apaga: se desmonta con el resultado. */}
+              <LessonCamera mode={cameraMode} rodCount={rodCount} />
+              {modeSelector}
+            </div>
+          )}
           <ExerciseView key={currentExercise(session).id} session={session} />
-          <InputModeSelector
-            legend="Mover las cuentas"
-            value={inputMode}
-            onChange={(mode) => {
-              setSettings({ inputMode: mode });
-            }}
-          />
+          {!withCamera && modeSelector}
         </>
       )}
     </main>
@@ -166,7 +176,7 @@ function ExerciseView({ session }: { session: LessonSessionState }) {
   const submit = () => void store.getState().submit(isRead ? Number(typed) : undefined);
 
   return (
-    <section className="exercise" aria-live="polite">
+    <section className={`exercise${isRead ? ' exercise--read' : ''}`} aria-live="polite">
       <div className="exercise__prompt">
         <p>{prompt.title}</p>
         {prompt.expression !== undefined && (
